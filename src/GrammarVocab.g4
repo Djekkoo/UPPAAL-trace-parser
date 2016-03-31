@@ -14,8 +14,8 @@ ARROW: '->';
 COMMA: ',';
 DOT: '.';
 
-TRANSITION: 'transition';
-DELAY: 'delay';
+TRANSITION: 'Transition';
+DELAY: 'Delay';
 
 MINUS: '-';
 
