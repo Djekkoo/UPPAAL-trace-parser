@@ -20,31 +20,32 @@ public class CoraParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		LCB=1, RCB=2, LB=3, RB=4, LSB=5, RSB=6, COLON=7, SEMI=8, ARROW=9, COMMA=10, 
-		DOT=11, TRANSITION=12, DELAY=13, MINUS=14, EQ=15, NE=16, GE=17, GT=18, 
-		LE=19, LT=20, TIMEZERO=21, OBJECTREF=22, VARREF=23, NUM=24, WS=25, LINECOMMENT=26, 
-		BLOCKCOMMENT=27, CHAR=28, DIGIT=29;
+		DOT=11, STATE=12, TRANSITION=13, DELAY=14, MINUS=15, EQ=16, NE=17, GE=18, 
+		GT=19, LE=20, LT=21, AND=22, OR=23, EXCL=24, QM=25, TIMEZERO=26, OBJECTREF=27, 
+		VARREF=28, NUM=29, WS=30, LINECOMMENT=31, BLOCKCOMMENT=32, CHAR=33, DIGIT=34;
 	public static final int
 		RULE_trace = 0, RULE_firstState = 1, RULE_gotoState = 2, RULE_transition = 3, 
 		RULE_state = 4, RULE_systemStates = 5, RULE_variables = 6, RULE_clocks = 7, 
 		RULE_transactionGuard = 8, RULE_synchronization = 9, RULE_assignments = 10, 
 		RULE_systemState = 11, RULE_variable = 12, RULE_clock = 13, RULE_clockLHS = 14, 
-		RULE_relation = 15;
+		RULE_relation = 15, RULE_syncExpr = 16, RULE_expr = 17;
 	public static final String[] ruleNames = {
 		"trace", "firstState", "gotoState", "transition", "state", "systemStates", 
 		"variables", "clocks", "transactionGuard", "synchronization", "assignments", 
-		"systemState", "variable", "clock", "clockLHS", "relation"
+		"systemState", "variable", "clock", "clockLHS", "relation", "syncExpr", 
+		"expr"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
 		null, "'{'", "'}'", "'('", "')'", "'['", "']'", "':'", "';'", "'->'", 
-		"','", "'.'", "'transition'", "'delay'", "'-'", "'='", "'!='", "'>='", 
-		"'>'", "'<='", "'<'", "'t(0)'"
+		"','", "'.'", "'State:'", "'Transition:'", "'Delay:'", "'-'", "'='", "'!='", 
+		"'>='", "'>'", "'<='", "'<'", "'&&'", "'||'", "'!'", "'?'", "'t(0)'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, "LCB", "RCB", "LB", "RB", "LSB", "RSB", "COLON", "SEMI", "ARROW", 
-		"COMMA", "DOT", "TRANSITION", "DELAY", "MINUS", "EQ", "NE", "GE", "GT", 
-		"LE", "LT", "TIMEZERO", "OBJECTREF", "VARREF", "NUM", "WS", "LINECOMMENT", 
-		"BLOCKCOMMENT", "CHAR", "DIGIT"
+		"COMMA", "DOT", "STATE", "TRANSITION", "DELAY", "MINUS", "EQ", "NE", "GE", 
+		"GT", "LE", "LT", "AND", "OR", "EXCL", "QM", "TIMEZERO", "OBJECTREF", 
+		"VARREF", "NUM", "WS", "LINECOMMENT", "BLOCKCOMMENT", "CHAR", "DIGIT"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -131,19 +132,19 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(32);
-			firstState();
 			setState(36);
+			firstState();
+			setState(40);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==TRANSITION) {
 				{
 				{
-				setState(33);
+				setState(37);
 				gotoState();
 				}
 				}
-				setState(38);
+				setState(42);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -189,7 +190,7 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(39);
+			setState(43);
 			state();
 			}
 		}
@@ -236,9 +237,9 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(41);
+			setState(45);
 			transition();
-			setState(42);
+			setState(46);
 			state();
 			}
 		}
@@ -255,7 +256,6 @@ public class CoraParser extends Parser {
 
 	public static class TransitionContext extends ParserRuleContext {
 		public TerminalNode TRANSITION() { return getToken(CoraParser.TRANSITION, 0); }
-		public TerminalNode COLON() { return getToken(CoraParser.COLON, 0); }
 		public List<SystemStateContext> systemState() {
 			return getRuleContexts(SystemStateContext.class);
 		}
@@ -271,13 +271,13 @@ public class CoraParser extends Parser {
 		public TerminalNode SEMI(int i) {
 			return getToken(CoraParser.SEMI, i);
 		}
-		public SynchronizationContext synchronization() {
-			return getRuleContext(SynchronizationContext.class,0);
-		}
 		public AssignmentsContext assignments() {
 			return getRuleContext(AssignmentsContext.class,0);
 		}
 		public TerminalNode RCB() { return getToken(CoraParser.RCB, 0); }
+		public SynchronizationContext synchronization() {
+			return getRuleContext(SynchronizationContext.class,0);
+		}
 		public TransitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -300,35 +300,49 @@ public class CoraParser extends Parser {
 	public final TransitionContext transition() throws RecognitionException {
 		TransitionContext _localctx = new TransitionContext(_ctx, getState());
 		enterRule(_localctx, 6, RULE_transition);
+		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(44);
-			match(TRANSITION);
-			setState(45);
-			match(COLON);
-			setState(46);
-			systemState();
-			setState(47);
-			match(ARROW);
 			setState(48);
-			systemState();
-			setState(49);
-			match(LCB);
-			setState(50);
-			transactionGuard();
-			setState(51);
-			match(SEMI);
-			setState(52);
-			synchronization();
-			setState(53);
-			match(SEMI);
-			setState(54);
-			assignments();
-			setState(55);
-			match(SEMI);
-			setState(56);
-			match(RCB);
+			match(TRANSITION);
+			setState(64);
+			_la = _input.LA(1);
+			if (_la==OBJECTREF) {
+				{
+				setState(49);
+				systemState();
+				setState(50);
+				match(ARROW);
+				setState(51);
+				systemState();
+				setState(52);
+				match(LCB);
+				setState(53);
+				transactionGuard();
+				setState(54);
+				match(SEMI);
+				setState(58);
+				_errHandler.sync(this);
+				switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
+				case 1:
+					{
+					setState(55);
+					synchronization();
+					setState(56);
+					match(SEMI);
+					}
+					break;
+				}
+				setState(60);
+				assignments();
+				setState(61);
+				match(SEMI);
+				setState(62);
+				match(RCB);
+				}
+			}
+
 			}
 		}
 		catch (RecognitionException re) {
@@ -343,6 +357,7 @@ public class CoraParser extends Parser {
 	}
 
 	public static class StateContext extends ParserRuleContext {
+		public TerminalNode STATE() { return getToken(CoraParser.STATE, 0); }
 		public SystemStatesContext systemStates() {
 			return getRuleContext(SystemStatesContext.class,0);
 		}
@@ -377,11 +392,13 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(58);
+			setState(66);
+			match(STATE);
+			setState(67);
 			systemStates();
-			setState(59);
+			setState(68);
 			variables();
-			setState(60);
+			setState(69);
 			clocks();
 			}
 		}
@@ -429,15 +446,15 @@ public class CoraParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(63); 
+			setState(72); 
 			_errHandler.sync(this);
-			_alt = 1;
+			_alt = 1+1;
 			do {
 				switch (_alt) {
-				case 1:
+				case 1+1:
 					{
 					{
-					setState(62);
+					setState(71);
 					systemState();
 					}
 					}
@@ -445,10 +462,10 @@ public class CoraParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(65); 
+				setState(74); 
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
-			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+				_alt = getInterpreter().adaptivePredict(_input,3,_ctx);
+			} while ( _alt!=1 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 			}
 		}
 		catch (RecognitionException re) {
@@ -495,21 +512,21 @@ public class CoraParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(70);
+			setState(79);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
-			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
-				if ( _alt==1 ) {
+			_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
+			while ( _alt!=1 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1+1 ) {
 					{
 					{
-					setState(67);
+					setState(76);
 					variable();
 					}
 					} 
 				}
-				setState(72);
+				setState(81);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,4,_ctx);
 			}
 			}
 		}
@@ -553,24 +570,30 @@ public class CoraParser extends Parser {
 	public final ClocksContext clocks() throws RecognitionException {
 		ClocksContext _localctx = new ClocksContext(_ctx, getState());
 		enterRule(_localctx, 14, RULE_clocks);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(74); 
+			setState(83); 
 			_errHandler.sync(this);
-			_la = _input.LA(1);
+			_alt = 1+1;
 			do {
-				{
-				{
-				setState(73);
-				clock();
+				switch (_alt) {
+				case 1+1:
+					{
+					{
+					setState(82);
+					clock();
+					}
+					}
+					break;
+				default:
+					throw new NoViableAltException(this);
 				}
-				}
-				setState(76); 
+				setState(85); 
 				_errHandler.sync(this);
-				_la = _input.LA(1);
-			} while ( _la==TIMEZERO || _la==OBJECTREF );
+				_alt = getInterpreter().adaptivePredict(_input,5,_ctx);
+			} while ( _alt!=1 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 			}
 		}
 		catch (RecognitionException re) {
@@ -585,6 +608,9 @@ public class CoraParser extends Parser {
 	}
 
 	public static class TransactionGuardContext extends ParserRuleContext {
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
 		public TransactionGuardContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -610,6 +636,8 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
+			setState(87);
+			expr(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -624,6 +652,9 @@ public class CoraParser extends Parser {
 	}
 
 	public static class SynchronizationContext extends ParserRuleContext {
+		public SyncExprContext syncExpr() {
+			return getRuleContext(SyncExprContext.class,0);
+		}
 		public SynchronizationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -649,6 +680,8 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
+			setState(89);
+			syncExpr(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -663,6 +696,10 @@ public class CoraParser extends Parser {
 	}
 
 	public static class AssignmentsContext extends ParserRuleContext {
+		public VariablesContext variables() {
+			return getRuleContext(VariablesContext.class,0);
+		}
+		public TerminalNode NUM() { return getToken(CoraParser.NUM, 0); }
 		public AssignmentsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -688,6 +725,24 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
+			setState(93);
+			switch (_input.LA(1)) {
+			case SEMI:
+			case OBJECTREF:
+				{
+				setState(91);
+				variables();
+				}
+				break;
+			case NUM:
+				{
+				setState(92);
+				match(NUM);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -728,7 +783,7 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(84);
+			setState(95);
 			match(OBJECTREF);
 			}
 		}
@@ -772,11 +827,11 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(86);
+			setState(97);
 			match(OBJECTREF);
-			setState(87);
+			setState(98);
 			match(EQ);
-			setState(88);
+			setState(99);
 			match(NUM);
 			}
 		}
@@ -824,11 +879,11 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(90);
+			setState(101);
 			clockLHS();
-			setState(91);
+			setState(102);
 			relation();
-			setState(92);
+			setState(103);
 			match(NUM);
 			}
 		}
@@ -918,18 +973,18 @@ public class CoraParser extends Parser {
 		ClockLHSContext _localctx = new ClockLHSContext(_ctx, getState());
 		enterRule(_localctx, 28, RULE_clockLHS);
 		try {
-			setState(103);
+			setState(114);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,4,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,7,_ctx) ) {
 			case 1:
 				_localctx = new ClockLHSZeroMinusObjectContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(94);
+				setState(105);
 				match(TIMEZERO);
-				setState(95);
+				setState(106);
 				match(MINUS);
-				setState(96);
+				setState(107);
 				match(OBJECTREF);
 				}
 				break;
@@ -937,11 +992,11 @@ public class CoraParser extends Parser {
 				_localctx = new ClockLHSObjectMinusZeroContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(97);
+				setState(108);
 				match(OBJECTREF);
-				setState(98);
+				setState(109);
 				match(MINUS);
-				setState(99);
+				setState(110);
 				match(TIMEZERO);
 				}
 				break;
@@ -949,11 +1004,11 @@ public class CoraParser extends Parser {
 				_localctx = new ClockLHSObjectMinusObjectContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(100);
+				setState(111);
 				match(OBJECTREF);
-				setState(101);
+				setState(112);
 				match(MINUS);
-				setState(102);
+				setState(113);
 				match(OBJECTREF);
 				}
 				break;
@@ -971,14 +1026,12 @@ public class CoraParser extends Parser {
 	}
 
 	public static class RelationContext extends ParserRuleContext {
-		public List<TerminalNode> EQ() { return getTokens(CoraParser.EQ); }
-		public TerminalNode EQ(int i) {
-			return getToken(CoraParser.EQ, i);
-		}
+		public TerminalNode EQ() { return getToken(CoraParser.EQ, 0); }
 		public TerminalNode LT() { return getToken(CoraParser.LT, 0); }
 		public TerminalNode LE() { return getToken(CoraParser.LE, 0); }
 		public TerminalNode GT() { return getToken(CoraParser.GT, 0); }
 		public TerminalNode GE() { return getToken(CoraParser.GE, 0); }
+		public TerminalNode NE() { return getToken(CoraParser.NE, 0); }
 		public RelationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1005,9 +1058,9 @@ public class CoraParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(105);
+			setState(116);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << EQ) | (1L << GE) | (1L << GT) | (1L << LE) | (1L << LT))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << EQ) | (1L << NE) | (1L << GE) | (1L << GT) | (1L << LE) | (1L << LT))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			} else {
 				consume();
@@ -1025,32 +1078,330 @@ public class CoraParser extends Parser {
 		return _localctx;
 	}
 
+	public static class SyncExprContext extends ParserRuleContext {
+		public TerminalNode OBJECTREF() { return getToken(CoraParser.OBJECTREF, 0); }
+		public TerminalNode EXCL() { return getToken(CoraParser.EXCL, 0); }
+		public TerminalNode QM() { return getToken(CoraParser.QM, 0); }
+		public TerminalNode NUM() { return getToken(CoraParser.NUM, 0); }
+		public List<SyncExprContext> syncExpr() {
+			return getRuleContexts(SyncExprContext.class);
+		}
+		public SyncExprContext syncExpr(int i) {
+			return getRuleContext(SyncExprContext.class,i);
+		}
+		public TerminalNode AND() { return getToken(CoraParser.AND, 0); }
+		public SyncExprContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_syncExpr; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof CoraListener ) ((CoraListener)listener).enterSyncExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof CoraListener ) ((CoraListener)listener).exitSyncExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CoraVisitor ) return ((CoraVisitor<? extends T>)visitor).visitSyncExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final SyncExprContext syncExpr() throws RecognitionException {
+		return syncExpr(0);
+	}
+
+	private SyncExprContext syncExpr(int _p) throws RecognitionException {
+		ParserRuleContext _parentctx = _ctx;
+		int _parentState = getState();
+		SyncExprContext _localctx = new SyncExprContext(_ctx, _parentState);
+		SyncExprContext _prevctx = _localctx;
+		int _startState = 32;
+		enterRecursionRule(_localctx, 32, RULE_syncExpr, _p);
+		try {
+			int _alt;
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(124);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
+			case 1:
+				{
+				setState(119);
+				match(OBJECTREF);
+				setState(120);
+				match(EXCL);
+				}
+				break;
+			case 2:
+				{
+				setState(121);
+				match(OBJECTREF);
+				setState(122);
+				match(QM);
+				}
+				break;
+			case 3:
+				{
+				setState(123);
+				match(NUM);
+				}
+				break;
+			}
+			_ctx.stop = _input.LT(-1);
+			setState(131);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					if ( _parseListeners!=null ) triggerExitRuleEvent();
+					_prevctx = _localctx;
+					{
+					{
+					_localctx = new SyncExprContext(_parentctx, _parentState);
+					pushNewRecursionContext(_localctx, _startState, RULE_syncExpr);
+					setState(126);
+					if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
+					setState(127);
+					match(AND);
+					setState(128);
+					syncExpr(5);
+					}
+					} 
+				}
+				setState(133);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,9,_ctx);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			unrollRecursionContexts(_parentctx);
+		}
+		return _localctx;
+	}
+
+	public static class ExprContext extends ParserRuleContext {
+		public TerminalNode EXCL() { return getToken(CoraParser.EXCL, 0); }
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public TerminalNode NUM() { return getToken(CoraParser.NUM, 0); }
+		public TerminalNode OBJECTREF() { return getToken(CoraParser.OBJECTREF, 0); }
+		public RelationContext relation() {
+			return getRuleContext(RelationContext.class,0);
+		}
+		public TerminalNode AND() { return getToken(CoraParser.AND, 0); }
+		public TerminalNode OR() { return getToken(CoraParser.OR, 0); }
+		public ExprContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_expr; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof CoraListener ) ((CoraListener)listener).enterExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof CoraListener ) ((CoraListener)listener).exitExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CoraVisitor ) return ((CoraVisitor<? extends T>)visitor).visitExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final ExprContext expr() throws RecognitionException {
+		return expr(0);
+	}
+
+	private ExprContext expr(int _p) throws RecognitionException {
+		ParserRuleContext _parentctx = _ctx;
+		int _parentState = getState();
+		ExprContext _localctx = new ExprContext(_ctx, _parentState);
+		ExprContext _prevctx = _localctx;
+		int _startState = 34;
+		enterRecursionRule(_localctx, 34, RULE_expr, _p);
+		try {
+			int _alt;
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(139);
+			switch (_input.LA(1)) {
+			case EXCL:
+				{
+				setState(135);
+				match(EXCL);
+				setState(136);
+				expr(3);
+				}
+				break;
+			case NUM:
+				{
+				setState(137);
+				match(NUM);
+				}
+				break;
+			case OBJECTREF:
+				{
+				setState(138);
+				match(OBJECTREF);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+			_ctx.stop = _input.LT(-1);
+			setState(153);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					if ( _parseListeners!=null ) triggerExitRuleEvent();
+					_prevctx = _localctx;
+					{
+					setState(151);
+					_errHandler.sync(this);
+					switch ( getInterpreter().adaptivePredict(_input,11,_ctx) ) {
+					case 1:
+						{
+						_localctx = new ExprContext(_parentctx, _parentState);
+						pushNewRecursionContext(_localctx, _startState, RULE_expr);
+						setState(141);
+						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
+						setState(142);
+						relation();
+						setState(143);
+						expr(7);
+						}
+						break;
+					case 2:
+						{
+						_localctx = new ExprContext(_parentctx, _parentState);
+						pushNewRecursionContext(_localctx, _startState, RULE_expr);
+						setState(145);
+						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
+						setState(146);
+						match(AND);
+						setState(147);
+						expr(6);
+						}
+						break;
+					case 3:
+						{
+						_localctx = new ExprContext(_parentctx, _parentState);
+						pushNewRecursionContext(_localctx, _startState, RULE_expr);
+						setState(148);
+						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
+						setState(149);
+						match(OR);
+						setState(150);
+						expr(5);
+						}
+						break;
+					}
+					} 
+				}
+				setState(155);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,12,_ctx);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			unrollRecursionContexts(_parentctx);
+		}
+		return _localctx;
+	}
+
+	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
+		switch (ruleIndex) {
+		case 16:
+			return syncExpr_sempred((SyncExprContext)_localctx, predIndex);
+		case 17:
+			return expr_sempred((ExprContext)_localctx, predIndex);
+		}
+		return true;
+	}
+	private boolean syncExpr_sempred(SyncExprContext _localctx, int predIndex) {
+		switch (predIndex) {
+		case 0:
+			return precpred(_ctx, 4);
+		}
+		return true;
+	}
+	private boolean expr_sempred(ExprContext _localctx, int predIndex) {
+		switch (predIndex) {
+		case 1:
+			return precpred(_ctx, 6);
+		case 2:
+			return precpred(_ctx, 5);
+		case 3:
+			return precpred(_ctx, 4);
+		}
+		return true;
+	}
+
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\37n\4\2\t\2\4\3\t"+
-		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4"+
-		"\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\3\2\3\2\7\2%\n"+
-		"\2\f\2\16\2(\13\2\3\3\3\3\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5"+
-		"\3\5\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3\6\3\7\6\7B\n\7\r\7\16\7C\3\b\7"+
-		"\bG\n\b\f\b\16\bJ\13\b\3\t\6\tM\n\t\r\t\16\tN\3\n\3\n\3\13\3\13\3\f\3"+
-		"\f\3\r\3\r\3\16\3\16\3\16\3\16\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20"+
-		"\3\20\3\20\3\20\3\20\3\20\5\20j\n\20\3\21\3\21\3\21\2\2\22\2\4\6\b\n\f"+
-		"\16\20\22\24\26\30\32\34\36 \2\3\4\2\21\21\23\26c\2\"\3\2\2\2\4)\3\2\2"+
-		"\2\6+\3\2\2\2\b.\3\2\2\2\n<\3\2\2\2\fA\3\2\2\2\16H\3\2\2\2\20L\3\2\2\2"+
-		"\22P\3\2\2\2\24R\3\2\2\2\26T\3\2\2\2\30V\3\2\2\2\32X\3\2\2\2\34\\\3\2"+
-		"\2\2\36i\3\2\2\2 k\3\2\2\2\"&\5\4\3\2#%\5\6\4\2$#\3\2\2\2%(\3\2\2\2&$"+
-		"\3\2\2\2&\'\3\2\2\2\'\3\3\2\2\2(&\3\2\2\2)*\5\n\6\2*\5\3\2\2\2+,\5\b\5"+
-		"\2,-\5\n\6\2-\7\3\2\2\2./\7\16\2\2/\60\7\t\2\2\60\61\5\30\r\2\61\62\7"+
-		"\13\2\2\62\63\5\30\r\2\63\64\7\3\2\2\64\65\5\22\n\2\65\66\7\n\2\2\66\67"+
-		"\5\24\13\2\678\7\n\2\289\5\26\f\29:\7\n\2\2:;\7\4\2\2;\t\3\2\2\2<=\5\f"+
-		"\7\2=>\5\16\b\2>?\5\20\t\2?\13\3\2\2\2@B\5\30\r\2A@\3\2\2\2BC\3\2\2\2"+
-		"CA\3\2\2\2CD\3\2\2\2D\r\3\2\2\2EG\5\32\16\2FE\3\2\2\2GJ\3\2\2\2HF\3\2"+
-		"\2\2HI\3\2\2\2I\17\3\2\2\2JH\3\2\2\2KM\5\34\17\2LK\3\2\2\2MN\3\2\2\2N"+
-		"L\3\2\2\2NO\3\2\2\2O\21\3\2\2\2PQ\3\2\2\2Q\23\3\2\2\2RS\3\2\2\2S\25\3"+
-		"\2\2\2TU\3\2\2\2U\27\3\2\2\2VW\7\30\2\2W\31\3\2\2\2XY\7\30\2\2YZ\7\21"+
-		"\2\2Z[\7\32\2\2[\33\3\2\2\2\\]\5\36\20\2]^\5 \21\2^_\7\32\2\2_\35\3\2"+
-		"\2\2`a\7\27\2\2ab\7\20\2\2bj\7\30\2\2cd\7\30\2\2de\7\20\2\2ej\7\27\2\2"+
-		"fg\7\30\2\2gh\7\20\2\2hj\7\30\2\2i`\3\2\2\2ic\3\2\2\2if\3\2\2\2j\37\3"+
-		"\2\2\2kl\t\2\2\2l!\3\2\2\2\7&CHNi";
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3$\u009f\4\2\t\2\4"+
+		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
+		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
+		"\4\23\t\23\3\2\3\2\7\2)\n\2\f\2\16\2,\13\2\3\3\3\3\3\4\3\4\3\4\3\5\3\5"+
+		"\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\5\5=\n\5\3\5\3\5\3\5\3\5\5\5C\n\5\3\6"+
+		"\3\6\3\6\3\6\3\6\3\7\6\7K\n\7\r\7\16\7L\3\b\7\bP\n\b\f\b\16\bS\13\b\3"+
+		"\t\6\tV\n\t\r\t\16\tW\3\n\3\n\3\13\3\13\3\f\3\f\5\f`\n\f\3\r\3\r\3\16"+
+		"\3\16\3\16\3\16\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20\3\20\3\20\3\20"+
+		"\3\20\3\20\5\20u\n\20\3\21\3\21\3\22\3\22\3\22\3\22\3\22\3\22\5\22\177"+
+		"\n\22\3\22\3\22\3\22\7\22\u0084\n\22\f\22\16\22\u0087\13\22\3\23\3\23"+
+		"\3\23\3\23\3\23\5\23\u008e\n\23\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\23"+
+		"\3\23\3\23\7\23\u009a\n\23\f\23\16\23\u009d\13\23\3\23\5LQW\4\"$\24\2"+
+		"\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$\2\3\3\2\22\27\u009d\2&\3\2\2"+
+		"\2\4-\3\2\2\2\6/\3\2\2\2\b\62\3\2\2\2\nD\3\2\2\2\fJ\3\2\2\2\16Q\3\2\2"+
+		"\2\20U\3\2\2\2\22Y\3\2\2\2\24[\3\2\2\2\26_\3\2\2\2\30a\3\2\2\2\32c\3\2"+
+		"\2\2\34g\3\2\2\2\36t\3\2\2\2 v\3\2\2\2\"~\3\2\2\2$\u008d\3\2\2\2&*\5\4"+
+		"\3\2\')\5\6\4\2(\'\3\2\2\2),\3\2\2\2*(\3\2\2\2*+\3\2\2\2+\3\3\2\2\2,*"+
+		"\3\2\2\2-.\5\n\6\2.\5\3\2\2\2/\60\5\b\5\2\60\61\5\n\6\2\61\7\3\2\2\2\62"+
+		"B\7\17\2\2\63\64\5\30\r\2\64\65\7\13\2\2\65\66\5\30\r\2\66\67\7\3\2\2"+
+		"\678\5\22\n\28<\7\n\2\29:\5\24\13\2:;\7\n\2\2;=\3\2\2\2<9\3\2\2\2<=\3"+
+		"\2\2\2=>\3\2\2\2>?\5\26\f\2?@\7\n\2\2@A\7\4\2\2AC\3\2\2\2B\63\3\2\2\2"+
+		"BC\3\2\2\2C\t\3\2\2\2DE\7\16\2\2EF\5\f\7\2FG\5\16\b\2GH\5\20\t\2H\13\3"+
+		"\2\2\2IK\5\30\r\2JI\3\2\2\2KL\3\2\2\2LM\3\2\2\2LJ\3\2\2\2M\r\3\2\2\2N"+
+		"P\5\32\16\2ON\3\2\2\2PS\3\2\2\2QR\3\2\2\2QO\3\2\2\2R\17\3\2\2\2SQ\3\2"+
+		"\2\2TV\5\34\17\2UT\3\2\2\2VW\3\2\2\2WX\3\2\2\2WU\3\2\2\2X\21\3\2\2\2Y"+
+		"Z\5$\23\2Z\23\3\2\2\2[\\\5\"\22\2\\\25\3\2\2\2]`\5\16\b\2^`\7\37\2\2_"+
+		"]\3\2\2\2_^\3\2\2\2`\27\3\2\2\2ab\7\35\2\2b\31\3\2\2\2cd\7\35\2\2de\7"+
+		"\22\2\2ef\7\37\2\2f\33\3\2\2\2gh\5\36\20\2hi\5 \21\2ij\7\37\2\2j\35\3"+
+		"\2\2\2kl\7\34\2\2lm\7\21\2\2mu\7\35\2\2no\7\35\2\2op\7\21\2\2pu\7\34\2"+
+		"\2qr\7\35\2\2rs\7\21\2\2su\7\35\2\2tk\3\2\2\2tn\3\2\2\2tq\3\2\2\2u\37"+
+		"\3\2\2\2vw\t\2\2\2w!\3\2\2\2xy\b\22\1\2yz\7\35\2\2z\177\7\32\2\2{|\7\35"+
+		"\2\2|\177\7\33\2\2}\177\7\37\2\2~x\3\2\2\2~{\3\2\2\2~}\3\2\2\2\177\u0085"+
+		"\3\2\2\2\u0080\u0081\f\6\2\2\u0081\u0082\7\30\2\2\u0082\u0084\5\"\22\7"+
+		"\u0083\u0080\3\2\2\2\u0084\u0087\3\2\2\2\u0085\u0083\3\2\2\2\u0085\u0086"+
+		"\3\2\2\2\u0086#\3\2\2\2\u0087\u0085\3\2\2\2\u0088\u0089\b\23\1\2\u0089"+
+		"\u008a\7\32\2\2\u008a\u008e\5$\23\5\u008b\u008e\7\37\2\2\u008c\u008e\7"+
+		"\35\2\2\u008d\u0088\3\2\2\2\u008d\u008b\3\2\2\2\u008d\u008c\3\2\2\2\u008e"+
+		"\u009b\3\2\2\2\u008f\u0090\f\b\2\2\u0090\u0091\5 \21\2\u0091\u0092\5$"+
+		"\23\t\u0092\u009a\3\2\2\2\u0093\u0094\f\7\2\2\u0094\u0095\7\30\2\2\u0095"+
+		"\u009a\5$\23\b\u0096\u0097\f\6\2\2\u0097\u0098\7\31\2\2\u0098\u009a\5"+
+		"$\23\7\u0099\u008f\3\2\2\2\u0099\u0093\3\2\2\2\u0099\u0096\3\2\2\2\u009a"+
+		"\u009d\3\2\2\2\u009b\u0099\3\2\2\2\u009b\u009c\3\2\2\2\u009c%\3\2\2\2"+
+		"\u009d\u009b\3\2\2\2\17*<BLQW_t~\u0085\u008d\u0099\u009b";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

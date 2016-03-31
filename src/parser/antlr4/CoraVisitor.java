@@ -123,4 +123,16 @@ public interface CoraVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitRelation(CoraParser.RelationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link CoraParser#syncExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSyncExpr(CoraParser.SyncExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link CoraParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr(CoraParser.ExprContext ctx);
 }

@@ -195,4 +195,24 @@ public interface CoraListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitRelation(CoraParser.RelationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CoraParser#syncExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterSyncExpr(CoraParser.SyncExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CoraParser#syncExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitSyncExpr(CoraParser.SyncExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link CoraParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpr(CoraParser.ExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CoraParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpr(CoraParser.ExprContext ctx);
 }

@@ -1,4 +1,8 @@
 lexer grammar GrammarVocab;
+@header{ 
+	package parser.antlr4;
+}
+
 
 LCB: '{';
 RCB: '}';
@@ -14,8 +18,9 @@ ARROW: '->';
 COMMA: ',';
 DOT: '.';
 
-TRANSITION: 'Transition';
-DELAY: 'Delay';
+STATE: 'State:';
+TRANSITION: 'Transition:';
+DELAY: 'Delay:';
 
 MINUS: '-';
 
@@ -26,10 +31,15 @@ GT: '>';
 LE: '<=';
 LT: '<';
 
+AND: '&&';
+OR: '||';
+EXCL: '!';
+QM: '?';
+
 TIMEZERO: 't(0)';
-OBJECTREF: VARREF(DOT OBJECTREF)*;
+OBJECTREF: (TIMEZERO | VARREF(DOT OBJECTREF)*);
 VARREF: CHAR (CHAR| DIGIT)*;
-NUM: DIGIT+;
+NUM: MINUS? DIGIT+;
 
 WS: [\t\r\n ]+ -> skip;
 LINECOMMENT: '//' (~[\r\n])* -> skip; // not officially UPPAAL, but useful for debugging

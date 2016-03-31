@@ -229,6 +229,30 @@ public class CoraBaseListener implements CoraListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRelation(CoraParser.RelationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSyncExpr(CoraParser.SyncExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSyncExpr(CoraParser.SyncExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExpr(CoraParser.ExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpr(CoraParser.ExprContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

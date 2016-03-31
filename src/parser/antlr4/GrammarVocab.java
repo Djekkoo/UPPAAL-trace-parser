@@ -1,4 +1,4 @@
-// Generated from Cora.g4 by ANTLR 4.5.2
+// Generated from GrammarVocab.g4 by ANTLR 4.5.2
  
 	package parser.antlr4;
 
@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
-public class CoraLexer extends Lexer {
+public class GrammarVocab extends Lexer {
 	static { RuntimeMetaData.checkVersion("4.5.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
@@ -79,13 +79,13 @@ public class CoraLexer extends Lexer {
 	}
 
 
-	public CoraLexer(CharStream input) {
+	public GrammarVocab(CharStream input) {
 		super(input);
 		_interp = new LexerATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
 
 	@Override
-	public String getGrammarFileName() { return "Cora.g4"; }
+	public String getGrammarFileName() { return "GrammarVocab.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }
