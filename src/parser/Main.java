@@ -10,9 +10,9 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.TokenStream;
 
-import parser.antlr4.target.CoraLexer;
-import parser.antlr4.target.CoraParser;
-import parser.antlr4.target.CoraParser.TraceContext;
+import parser.antlr4.CoraLexer;
+import parser.antlr4.CoraParser;
+import parser.antlr4.CoraParser.TraceContext;
 
 public class Main {
 
