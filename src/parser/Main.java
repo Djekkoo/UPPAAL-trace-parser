@@ -14,9 +14,9 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.TokenStream;
 
-import parser.antlr4.CoraLexer;
-import parser.antlr4.CoraParser;
-import parser.antlr4.CoraParser.TraceContext;
+import parser.antlr4.TraceLexer;
+import parser.antlr4.TraceParser;
+import parser.antlr4.TraceParser.TraceContext;
 
 public class Main {
 
@@ -31,10 +31,13 @@ public class Main {
 			return;
 		}*/
 		// testing with test-file
-		File testfile = new File("./testfiles/human_traces/EnterRoom-gui.human");//EnterRoom-gui-generated-some.human");
-		CharStream stream = new ANTLRInputStream(new FileReader(testfile));
+		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
+		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
+		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");
+		CharStream stream = new ANTLRInputStream(new FileReader(testfileNoCora));
 		
 		TraceContext res = parseProgram(stream);
+		
 		
 		if (res != null) {
 			System.out.println("Program parsed!");
@@ -49,16 +52,16 @@ public class Main {
 	
 
 	public static TraceContext parseProgram(CharStream stream) {
-		CoraLexer lexer = new CoraLexer(stream);
+		TraceLexer lexer = new TraceLexer(stream);
 		Main.ErrorListener listener = new Main.ErrorListener();
 		lexer.addErrorListener(listener);
 		TokenStream tokens = new CommonTokenStream(lexer);
-		CoraParser parser = new CoraParser(tokens);
+		TraceParser parser = new TraceParser(tokens);
 		parser.addErrorListener(listener);
 		TraceContext program = parser.trace();
 		return listener.error ? null : program;
 	}
-	
+
 
 	private static class ErrorListener extends BaseErrorListener {
 		private boolean error = false;
