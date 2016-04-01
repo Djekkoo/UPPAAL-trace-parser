@@ -1,7 +1,7 @@
 grammar Trace;
 import GrammarVocab;
 
-trace: firstState gotoState*; // an program
+trace: firstState? gotoState*; // an program, firstState is optional to allow cutting of file
 
 // state and transaction definition
 firstState: state; // state without transaction

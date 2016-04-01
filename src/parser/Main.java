@@ -34,12 +34,14 @@ public class Main {
 		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
 		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
 		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");
-		CharStream stream = new ANTLRInputStream(new FileReader(testfileNoCora));
+		CharStream stream = new ANTLRInputStream(new FileReader(testfileVerifyta	));
 		
 		TraceContext res = parseProgram(stream);
+		GenericParser parser = new GenericParser();
+		res.accept(parser);
 		
 		
-		if (res != null) {
+		if (parser.states != null) {
 			System.out.println("Program parsed!");
 			
 			
