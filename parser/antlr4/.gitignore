@@ -6,3 +6,5 @@
 /TraceListener.java
 /TraceParser.java
 /TraceVisitor.java
+/GrammarVocab.java
+/GrammarVocab.tokens

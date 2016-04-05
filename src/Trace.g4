@@ -6,14 +6,14 @@ trace: firstState? gotoState*; // an program, firstState is optional to allow cu
 // state and transaction definition
 firstState: state; // state without transaction
 gotoState: transition state; //state with transaction
-transition: (TRANSITION | TRANSITIONS) transitionDetails* #transitionTransition
+transition: (TRANSITION | TRANSITIONS) transitionDetails* #transitionState
 		  | DELAY REAL									  #transitionDelay
 		  ;	
 transitionDetails: systemState ARROW systemState 
 				LCB 
 				(
 					transactionGuard SEMI (synchronization SEMI)? transactionAssignmentsLibutap SEMI | // libutap
-					transactionGuard COMMA (synchronization COMMA)? transactionAssignmentsVerifyta 		// verifyta
+					transactionGuard COMMA (synchronization COMMA)? transactionAssignmentsVerifyta 	   // verifyta
 				) 
 				RCB;
 					
