@@ -12,8 +12,8 @@ transition: (TRANSITION | TRANSITIONS) transitionDetails* #transitionState
 transitionDetails: systemState ARROW systemState 
 				LCB 
 				(
-					transitionGuard SEMI (synchronization SEMI)? transitionAssignmentsLibutap SEMI | // libutap
-					transitionGuard COMMA (synchronization COMMA)? transitionAssignmentsVerifyta 	   // verifyta
+					transitionGuard SEMI (synchronization SEMI)? transitionAssignments SEMI | // libutap
+					transitionGuard COMMA (synchronization COMMA)? transitionAssignments	  // verifyta
 				) 
 				RCB;
 					
@@ -32,8 +32,7 @@ clocks: clock+?;
 // sub definition of transition
 transitionGuard: expr;
 synchronization: syncExpr;
-transitionAssignmentsLibutap : (variables|REAL);
-transitionAssignmentsVerifyta : (assignments|REAL);
+transitionAssignments: (variables|assignments|REAL); //(variables|REAL) -> libutap; (assignments|REAL) -> verifyta 
 
 // general types
 systemState: OBJECTREF;

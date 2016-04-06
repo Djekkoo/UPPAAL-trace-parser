@@ -33,7 +33,7 @@ public class Main {
 		// testing with test-file
 		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
 		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
-		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");
+		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
 		CharStream stream = new ANTLRInputStream(new FileReader(testfileVerifyta	));
 		
 		TraceContext res = parseProgram(stream);
@@ -52,7 +52,7 @@ public class Main {
 		return;
 	}
 	
-
+	// parse charstream
 	public static TraceContext parseProgram(CharStream stream) {
 		TraceLexer lexer = new TraceLexer(stream);
 		Main.ErrorListener listener = new Main.ErrorListener();
@@ -64,7 +64,7 @@ public class Main {
 		return listener.error ? null : program;
 	}
 
-
+	
 	private static class ErrorListener extends BaseErrorListener {
 		private boolean error = false;
 		
