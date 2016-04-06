@@ -3,17 +3,17 @@ import GrammarVocab;
 
 trace: firstState? gotoState*; // an program, firstState is optional to allow cutting of file
 
-// state and transaction definition
-firstState: state; // state without transaction
-gotoState: transition state; //state with transaction
+// state and transition definition
+firstState: state; // state without transition
+gotoState: transition state; //state with transition
 transition: (TRANSITION | TRANSITIONS) transitionDetails* #transitionState
 		  | DELAY REAL									  #transitionDelay
 		  ;	
 transitionDetails: systemState ARROW systemState 
 				LCB 
 				(
-					transactionGuard SEMI (synchronization SEMI)? transactionAssignmentsLibutap SEMI | // libutap
-					transactionGuard COMMA (synchronization COMMA)? transactionAssignmentsVerifyta 	   // verifyta
+					transitionGuard SEMI (synchronization SEMI)? transitionAssignmentsLibutap SEMI | // libutap
+					transitionGuard COMMA (synchronization COMMA)? transitionAssignmentsVerifyta 	   // verifyta
 				) 
 				RCB;
 					
@@ -29,11 +29,11 @@ variables: variable*?;
 assignments: assignment*?; // nocora
 clocks: clock+?;
 
-// sub definition of transaction
-transactionGuard: expr;
+// sub definition of transition
+transitionGuard: expr;
 synchronization: syncExpr;
-transactionAssignmentsLibutap : (variables|REAL);
-transactionAssignmentsVerifyta : (assignments|REAL);
+transitionAssignmentsLibutap : (variables|REAL);
+transitionAssignmentsVerifyta : (assignments|REAL);
 
 // general types
 systemState: OBJECTREF;
