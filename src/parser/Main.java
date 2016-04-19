@@ -14,9 +14,9 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.TokenStream;
 
-import parser.antlr4.TraceLexer;
-import parser.antlr4.TraceParser;
-import parser.antlr4.TraceParser.TraceContext;
+import parser.antlr4.UPPAALTraceLexer;
+import parser.antlr4.UPPAALTraceParser;
+import parser.antlr4.UPPAALTraceParser.TraceContext;
 
 public class Main {
 
@@ -54,11 +54,11 @@ public class Main {
 	
 	// parse charstream
 	public static TraceContext parseProgram(CharStream stream) {
-		TraceLexer lexer = new TraceLexer(stream);
+		UPPAALTraceLexer lexer = new UPPAALTraceLexer(stream);
 		Main.ErrorListener listener = new Main.ErrorListener();
 		lexer.addErrorListener(listener);
 		TokenStream tokens = new CommonTokenStream(lexer);
-		TraceParser parser = new TraceParser(tokens);
+		UPPAALTraceParser parser = new UPPAALTraceParser(tokens);
 		parser.addErrorListener(listener);
 		TraceContext program = parser.trace();
 		return listener.error ? null : program;

@@ -1,13 +1,15 @@
 package traceModel;
 
 import java.util.HashMap;
+import java.util.List;
 
 // nothing more than a glorified dictionary, Java-style
 public class State {
 
 	protected Transition transition = null;
-	protected String[] States = null;
+	protected String[] states = null;
 	protected HashMap<String, String> variables = null;
+	protected List<Clock> clocks = null;
 
 	public Transition getTransition() {
 		return transition;
@@ -18,11 +20,11 @@ public class State {
 	}
 
 	public String[] getStates() {
-		return States;
+		return states;
 	}
 
 	public void setStates(String[] states) {
-		States = states;
+		this.states = states;
 	}
 
 	public HashMap<String, String> getVariables() {
@@ -31,6 +33,14 @@ public class State {
 
 	public void setVariables(HashMap<String, String> variables) {
 		this.variables = variables;
+	}
+
+	public List<Clock> getClocks() {
+		return clocks;
+	}
+
+	public void setClocks(List<Clock> clocks) {
+		this.clocks = clocks;
 	}
 	
 }

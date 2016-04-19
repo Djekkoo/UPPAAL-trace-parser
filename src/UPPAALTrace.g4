@@ -1,4 +1,4 @@
-grammar Trace;
+grammar UPPAALTrace; //TODO: ANTLR style conventions. kijken naar semantic predicates
 import GrammarVocab;
 
 trace: firstState? gotoState*; // an program, firstState is optional to allow cutting of file
@@ -44,6 +44,7 @@ clockLHS: TIMEZERO MINUS OBJECTREF 				#clockLHSZeroMinusObject
 		| OBJECTREF MINUS OBJECTREF				#clockLHSObjectMinusObject
 		| OBJECTREF								#clockLHSObject
 		;
+		
 relation: EQ | LT | LE | GT | GE | NE;
 value: BOOL | REAL;
 

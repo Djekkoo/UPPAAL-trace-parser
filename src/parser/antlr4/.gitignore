@@ -8,3 +8,11 @@
 /TraceVisitor.java
 /GrammarVocab.java
 /GrammarVocab.tokens
+/UPPAALTrace.tokens
+/UPPAALTraceBaseListener.java
+/UPPAALTraceBaseVisitor.java
+/UPPAALTraceLexer.java
+/UPPAALTraceLexer.tokens
+/UPPAALTraceListener.java
+/UPPAALTraceParser.java
+/UPPAALTraceVisitor.java
