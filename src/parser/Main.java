@@ -44,6 +44,7 @@ public class Main {
 		
 		
 		if (parser.states != null) {
+			Object inspectMe = parser.states.toArray();
 			System.out.println("Program parsed!");
 		}
 		
