@@ -6,54 +6,75 @@ trace: firstState? gotoState*; // an program, firstState is optional to allow cu
 // state and transition definition
 firstState: state; // state without transition
 gotoState: transition state; //state with transition
-transition: (TRANSITION | TRANSITIONS) transitionDetails* #transitionState
-		  | DELAY REAL									  #transitionDelay
-		  ;	
-transitionDetails: systemState ARROW systemState 
-				LCB 
-				(
-					transitionGuard SEMI (synchronization SEMI)? transitionAssignments SEMI | // libutap
-					transitionGuard COMMA (synchronization COMMA)? transitionAssignments	  // verifyta
-				) 
-				RCB;
+transition
+	: (TRANSITION | TRANSITIONS) transitionDetails* #transitionState
+	| DELAY REAL									#transitionDelay
+	;	
+transitionDetails
+	: systemState ARROW systemState 
+	LCB ( 
+		  transitionGuard SEMI (synchronization SEMI)? transitionAssignments SEMI // libutap
+		| transitionGuard COMMA (synchronization COMMA)? transitionAssignments	  // verifyta
+	) RCB;
 					
 				
 state: STATE systemStates variables clocks;
 
 // sub definition of state
-systemStates: (
-					systemState+?		 | // libutap	 
-					LB systemState+? RB	   //  verifyta
-				);
+systemStates
+	: systemState+? 		// libutap	 
+	| LB systemState+? RB	//  verifyta
+	;
 variables: variable*;
 assignments: assignment*?; // nocora
 clocks: clock*?;
 
 // sub definition of transition
 transitionGuard: expr;
-synchronization: syncExpr | value; // value -> no sync
-transitionAssignments: (variables|assignments|REAL); //(variables|REAL) -> libutap; (assignments|REAL) -> verifyta 
+synchronization
+	: syncExpr  // sync
+	| value		// no sync
+	; 
+transitionAssignments
+	: variables 	// libutap
+	| assignments	// verifyta
+	| REAL			// libtap/verifyta -> no transactions
+	;  
 
 // general types
 systemState: OBJECTREF;
 variable: OBJECTREF EQ value;
 assignment: OBJECTREF ASSIGN value; //nocora
 clock: clockLHS relation REAL;
-clockLHS: TIMEZERO MINUS OBJECTREF 				#clockLHSZeroMinusObject
-		| OBJECTREF MINUS TIMEZERO 				#clockLHSObjectMinusZero
-		| OBJECTREF MINUS OBJECTREF				#clockLHSObjectMinusObject
-		| OBJECTREF								#clockLHSObject
-		;
+clockLHS
+	: TIMEZERO MINUS OBJECTREF 	#clockLHSZeroMinusObject
+	| OBJECTREF MINUS TIMEZERO 	#clockLHSObjectMinusZero
+	| OBJECTREF MINUS OBJECTREF	#clockLHSObjectMinusObject
+	| OBJECTREF					#clockLHSObject
+	;
 		
-relation: EQ | LT | LE | GT | GE | NE;
-value: BOOL | REAL;
+relation
+	: EQ 
+	| LT 
+	| LE 
+	| GT 
+	| GE 
+	| NE
+	;
+	
+value
+	: BOOL 
+	| REAL
+	;
 
-syncExpr : syncExpr AND syncExpr
-		 | OBJECTREF EXCL? // OBJECTREF EXCL -> libutap, OBJECTREF -> verifyta 
-		 | OBJECTREF QM
-		 ;
+syncExpr
+	: syncExpr AND syncExpr
+	| OBJECTREF EXCL? 		// OBJECTREF EXCL -> libutap, OBJECTREF -> verifyta 
+	| OBJECTREF QM
+	;
 
-expr: expr relation expr
+expr
+	: expr relation expr
  	| expr AND expr
  	| expr OR expr
  	| EXCL expr

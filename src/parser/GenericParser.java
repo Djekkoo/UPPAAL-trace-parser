@@ -53,7 +53,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			// add transition and visit state
 			this.visitingState.setTransition((Transition) this.visit(ctx.gotoState(i).transition()));
 			// no states in transition?
-			if (((StatesTransition) (this.visitingState.getTransition())).size() == 0)
+			if (this.visitingState.getTransition().getClass() == StatesTransition.class && ((StatesTransition)(this.visitingState.getTransition())).size() == 0)
 				this.visitingState.setTransition(new NoTransition());
 			this.visit(statectx);
 			
