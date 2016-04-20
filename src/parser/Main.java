@@ -36,7 +36,7 @@ public class Main {
 		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
 		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
 		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
-		CharStream stream = new ANTLRInputStream(new FileReader(testfileVerifyta));
+		CharStream stream = new ANTLRInputStream(new FileReader(testfileNoCora));
 		
 		TraceContext res = parseProgram(stream);
 		GenericParser parser = new GenericParser();

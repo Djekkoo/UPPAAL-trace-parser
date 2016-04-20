@@ -10,6 +10,7 @@ public class State {
 	private String[] states = null;
 	private HashMap<String, String> variables = null;
 	private List<Clock> clocks = null;
+	private float globalTime;
 
 	public Transition getTransition() {
 		return transition;
@@ -41,6 +42,14 @@ public class State {
 
 	public void setClocks(List<Clock> clocks) {
 		this.clocks = clocks;
+	}
+
+	public void setGlobalTime(float globalTime) {
+		this.globalTime = globalTime;
+	}
+	
+	public float getGlobalTime() {
+		return this.globalTime;
 	}
 	
 }

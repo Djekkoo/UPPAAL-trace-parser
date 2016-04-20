@@ -25,8 +25,22 @@ import traceModel.StatesTransition.StateTransition;
 
 public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	
-	public ArrayList<State> states = new ArrayList<State>();
-	protected State visitingState = null;
+	public final ArrayList<State> states = new ArrayList<State>();
+	private State visitingState = null;
+	
+	// a property that should be deduced on as many ways as possible
+	// currently only based on DelayTransactions
+	// the value of this variable is applied to all states
+	private float globalTime = 0; 
+	
+	// use this method when the parsing has been cut into different batches
+	public void setGlobalTime(float globalTime) {
+		this.globalTime = globalTime;
+	}
+	// use this method when the parsing has been cut into different batches
+	public float getGlobaltime() {
+		return this.globalTime;
+	}
 	
 	// visit all states in trace
 	public Void visitTrace(TraceContext ctx) {
@@ -37,6 +51,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			
 			statectx = ctx.firstState().state();
 			this.visitingState = new State();
+			this.visitingState.setGlobalTime(this.globalTime);
 			this.states.add(this.visitingState);
 			
 			this.visitingState.setTransition(new NoTransition()); // first state has no transition
@@ -55,8 +70,15 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			// no states in transition?
 			if (this.visitingState.getTransition().getClass() == StatesTransition.class && ((StatesTransition)(this.visitingState.getTransition())).size() == 0)
 				this.visitingState.setTransition(new NoTransition());
-			this.visit(statectx);
 			
+			// time delay? Adjust global time
+			if (this.visitingState.getTransition().getClass() == DelayTransition.class) {
+				this.globalTime += ((DelayTransition) (this.visitingState.getTransition())).getDelay();
+			}
+			
+			// do state things
+			this.visitingState.setGlobalTime(this.globalTime);
+			this.visit(statectx);
 		}
 		
 		return null;
