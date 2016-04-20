@@ -25,13 +25,13 @@ systemStates: (
 					systemState+?		 | // libutap	 
 					LB systemState+? RB	   //  verifyta
 				);
-variables: variable*?;
+variables: variable*;
 assignments: assignment*?; // nocora
-clocks: clock+?;
+clocks: clock*?;
 
 // sub definition of transition
 transitionGuard: expr;
-synchronization: syncExpr;
+synchronization: syncExpr | value; // value -> no sync
 transitionAssignments: (variables|assignments|REAL); //(variables|REAL) -> libutap; (assignments|REAL) -> verifyta 
 
 // general types
@@ -49,10 +49,8 @@ relation: EQ | LT | LE | GT | GE | NE;
 value: BOOL | REAL;
 
 syncExpr : syncExpr AND syncExpr
-		 | syncExpr EXCL
-		 | syncExpr QM
-		 | OBJECTREF
-		 | value
+		 | OBJECTREF EXCL? // OBJECTREF EXCL -> libutap, OBJECTREF -> verifyta 
+		 | OBJECTREF QM
 		 ;
 
 expr: expr relation expr

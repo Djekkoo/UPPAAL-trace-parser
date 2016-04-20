@@ -3,10 +3,12 @@ package parser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import parser.antlr4.*;
 import parser.antlr4.UPPAALTraceParser.*;
 import traceModel.*;
+import traceModel.StatesTransition.StateTransition;
 
 /** A note from the author.
  * 
@@ -50,33 +52,44 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			
 			// add transition and visit state
 			this.visitingState.setTransition((Transition) this.visit(ctx.gotoState(i).transition()));
+			// no states in transition?
+			if (((StatesTransition) (this.visitingState.getTransition())).size() == 0)
+				this.visitingState.setTransition(new NoTransition());
 			this.visit(statectx);
 			
 		}
 		
 		return null;
 	}
-	/**----------------------------------TRANSITITIONS-------------------------------**/
+	/**----------------------------------TRANSITIONS-------------------------------**/
 	// stateA -> stateB (guard; sync?; assignments)
+	@SuppressWarnings("unchecked") // Sorry
 	public Transition visitTransitionState(TransitionStateContext ctx) {
 		StatesTransition trans = new StatesTransition();
-		// TODO visit childs and apply on trans
-		List<TransitionDetailsContext> transitions = ctx.transitionDetails();
-		for (int i = 0; i < transitions.size(); i++) {
+		
+		List<TransitionDetailsContext> transitionDetails = ctx.transitionDetails();
+		for (int i = 0; i < transitionDetails.size(); i++) {
+			// generate new sub transition and apply to list
+			StateTransition stateTrans = trans.new StateTransition();
+			trans.addTransition(stateTrans);
+			
 			// states & guard
-			String stateA = (String) this.visit(transitions.get(i).systemState(0));
-			String stateB = (String) this.visit(transitions.get(i).systemState(1));
-			Object guards = this.visit(transitions.get(i).transitionGuard());
+			String stateA = (String) this.visit(transitionDetails.get(i).systemState(0));
+			String stateB = (String) this.visit(transitionDetails.get(i).systemState(1));
+			String guard  = (String) this.visit(transitionDetails.get(i).transitionGuard());
+			stateTrans.setStateA(stateA);
+			stateTrans.setStateB(stateB);
+			stateTrans.setGuard(guard);
+
 			// sync optional
-			Object syncs = null; // TODO: child implementation + infer object type
-			if (transitions.get(i).synchronization() != null)
-				syncs = this.visit(transitions.get(i).synchronization());
+			List<Pair<String, Boolean>> syncs = null;
+			if (transitionDetails.get(i).synchronization() != null)
+				syncs = (List<Pair<String, Boolean>>) this.visit(transitionDetails.get(i).synchronization());
+			stateTrans.setSynchronization(syncs);
 			
-			// assignments TODO: infer object type + child implementation
-			Object assignments = visit(transitions.get(i).transitionAssignments());
-						
-			// TODO: add loop variables as stateTransition to StatesTransition variable (local trans)
-			
+			// assignments
+			Map<String, String> assignments = (Map<String, String>) visit(transitionDetails.get(i).transitionAssignments());
+			stateTrans.setAssignments(assignments);
 			
 		}
 		
@@ -85,9 +98,64 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 
 	// time (+REAL)
 	public Transition visitTransitionDelay(TransitionDelayContext ctx) {
-		float delayTime = Float.parseFloat(ctx.REAL().toString());
+		float delayTime = Float.parseFloat(ctx.REAL().getText());
 		return new DelayTransition(delayTime);
 	}
+	
+	// transitionGuard: expr;
+	public String visitTransitionGuard(TransitionGuardContext ctx) {
+		// might be extended to include expression parsing, 
+		// this is thought to be unnescessary at this moment
+		return ctx.expr().getText();   
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Pair<String, Boolean>> visitSynchronization(SynchronizationContext ctx) {
+		// 0 or 1 as synchronisation means no synchronisation
+		if (ctx.value() != null)
+			return null;
+		// get syncs
+		// Pair<Name, Bool> Bool == true -> outgoing synchronization; Bool == false -> ingoing synchronization
+		return (List<Pair<String, Boolean>>) visit(ctx.syncExpr());
+	}
+	
+	@SuppressWarnings("unchecked")
+	// Pair<Name, Bool> Bool == true -> outgoing synchronization; Bool == false -> ingoing synchronization
+	public List<Pair<String, Boolean>> visitSyncExpr(SyncExprContext ctx) {
+		
+		// sub expressions
+		// syncExpr = syncExpr AND syncExpr
+		if (ctx.syncExpr().size() == 2) {
+			List<Pair<String, Boolean>> sub0 = (List<Pair<String, Boolean>>) visit(ctx.syncExpr(0));
+			List<Pair<String, Boolean>> sub1 = (List<Pair<String, Boolean>>) visit(ctx.syncExpr(1));
+			List<Pair<String, Boolean>> res  = new ArrayList<Pair<String, Boolean>>(sub0.size() + sub1.size());
+			res.addAll(sub0);
+			res.addAll(sub1);
+			return res;
+		}
+		
+		// one synchronization
+		// syncExpr = OBJECTREF EXCL? | OBJECTREF QM
+		List<Pair<String, Boolean>> res = new ArrayList<Pair<String, Boolean>>(1);
+		res.add(new Pair<String, Boolean>(ctx.OBJECTREF().getText(), (Boolean) (ctx.QM() == null)));
+		return res;
+	}
+	
+	public Map<String, String> visitTransitionAssignments(TransitionAssignmentsContext ctx) {
+		HashMap<String, String> assignments = new HashMap<String, String>();
+		if (ctx.assignments() != null) {
+			for(int i = 0; i < ctx.assignments().assignment().size(); i++) {
+				assignments.put(ctx.assignments().assignment(i).OBJECTREF().getText(), (String) visit(ctx.assignments().assignment(i).value()));
+			}
+		}
+		if (ctx.variables() != null) {
+			for(int i = 0; i < ctx.variables().variable().size(); i++) {
+				assignments.put(ctx.variables().variable(i).OBJECTREF().getText(), (String) visit(ctx.variables().variable(i).value()));
+			}
+		}
+		return assignments;
+	}
+	
 	/**----------------------------------STATES-------------------------------------**/
 	// (systemStates; variables; clocks)
 	@SuppressWarnings("unchecked")
@@ -115,7 +183,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		int length = ctx.variable().size();
 		for (int i = 0; i < length; i++) {
 			String value = (String) this.visit(ctx.variable(i).value());
-			variables.put(ctx.variable(i).OBJECTREF().toString(), value);
+			variables.put(ctx.variable(i).OBJECTREF().getText(), value);
 		}
 		
 		return variables;
@@ -146,7 +214,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		Clock.Relation relation = Clock.Relation.getByText((ctx.relation().getText()));
 		if (relation == null)
 			throw new RuntimeException("Unregistered operant: " + ctx.relation().getText() + ", please add to grammar rule 'relation' and apply in traceModel.Clock.Relation.");
-		float value = Float.valueOf(ctx.REAL().toString());
+		float value = Float.valueOf(ctx.REAL().getText());
 		
 		clock.setRelation(relation);
 		clock.setValue(value);
@@ -161,22 +229,22 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	// ClockLHS => T(0) - OBJECTREF
 	public Clock.LHS visitClockLHSZeroMinusObject(ClockLHSZeroMinusObjectContext ctx) {
 		List<Clock> clocks = this.visitingState.getClocks();
-		return clocks.get(clocks.size()-1).new LHS(null, ctx.OBJECTREF().toString());
+		return clocks.get(clocks.size()-1).new LHS(null, ctx.OBJECTREF().getText());
 	}
 	// ClockLHS => OBJECTREF - T(0)
 	public Clock.LHS visitClockLHSObjectMinusZero(ClockLHSObjectMinusZeroContext ctx) {
 		List<Clock> clocks = this.visitingState.getClocks();
-		return clocks.get(clocks.size()-1).new LHS(ctx.OBJECTREF().toString());
+		return clocks.get(clocks.size()-1).new LHS(ctx.OBJECTREF().getText());
 	}
 	// ClockLHS => OBJECTREF - OBJECTREF
 	public Clock.LHS visitClockLHSObjectMinusObject(ClockLHSObjectMinusObjectContext ctx) {
 		List<Clock> clocks = this.visitingState.getClocks();
-		return clocks.get(clocks.size()-1).new LHS(ctx.OBJECTREF(0).toString(), ctx.OBJECTREF(1).toString());
+		return clocks.get(clocks.size()-1).new LHS(ctx.OBJECTREF(0).getText(), ctx.OBJECTREF(1).getText());
 	}
 	// ClockLHS => OBJECTREF
 	public Clock.LHS visitClockLHSObject(ClockLHSObjectContext ctx) {
 		List<Clock> clocks = this.visitingState.getClocks();
-		return clocks.get(clocks.size()-1).new LHS(ctx.OBJECTREF().toString());
+		return clocks.get(clocks.size()-1).new LHS(ctx.OBJECTREF().getText());
 	}
 	 
 	/**----------------------------------RULES TO STRINGS------------------------------**/
@@ -193,14 +261,14 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	
 	// single system state to string
 	public String visitSystemState(SystemStateContext ctx) {
-		return ctx.OBJECTREF().toString();
+		return ctx.OBJECTREF().getText();
 	}
 	
 	// value => BOOL|REAL; to string
 	public String visitValue(ValueContext ctx) {
 		if (ctx.BOOL() != null)
-			return ctx.BOOL().toString();
-		return ctx.REAL().toString();
+			return ctx.BOOL().getText();
+		return ctx.REAL().getText();
 	}
 	
 }
