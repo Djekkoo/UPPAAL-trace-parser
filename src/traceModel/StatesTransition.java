@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class StatesTransition implements Transition {
 	
-	protected final List<StateTransition> transitions = new ArrayList<StateTransition>();
+	private final List<StateTransition> transitions = new ArrayList<StateTransition>();
 	
 	public void addTransition(StateTransition transition) {
 		this.transitions.add(transition);
@@ -25,13 +25,13 @@ public class StatesTransition implements Transition {
 	}
 	
 	public class StateTransition {
-		protected String stateA;
-		protected String stateB;
-		protected String guard;
-		protected Object[] syncs;
-		protected Map<String, String> assignments;
+		private String stateA;
+		private String stateB;
+		private String guard; // this abstraction could be improved
+		private Map<String, String> assignments;
+		
 		// Pair<Name, Bool> Bool == true -> outgoing synchronization; Bool == false -> ingoing synchronization
-		protected List<Pair<String, Boolean>> synchronization = null;
+		private List<Pair<String, Boolean>> synchronization = null;
 		
 		public String getStateA() {
 			return stateA;

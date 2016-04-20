@@ -6,10 +6,10 @@ import java.util.List;
 // nothing more than a glorified dictionary, Java-style
 public class State {
 
-	protected Transition transition = null;
-	protected String[] states = null;
-	protected HashMap<String, String> variables = null;
-	protected List<Clock> clocks = null;
+	private Transition transition = null;
+	private String[] states = null;
+	private HashMap<String, String> variables = null;
+	private List<Clock> clocks = null;
 
 	public Transition getTransition() {
 		return transition;

@@ -1,11 +1,12 @@
 package traceModel;
 
+// represents a clock constraint
 // Grammar: clockLHS relation REAL
 public class Clock {
 	
-	protected Relation relation;
-	protected float value;
-	protected LHS LHS; //TODO: defer type
+	private Relation relation;
+	private float value;
+	private LHS LHS; //TODO: defer type
 	
 	/** Java things */
 	public float getValue() {
