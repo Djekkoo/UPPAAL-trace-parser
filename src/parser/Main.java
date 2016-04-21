@@ -1,18 +1,13 @@
 package parser;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.*;
 
 import parser.antlr4.UPPAALTraceLexer;
 import parser.antlr4.UPPAALTraceParser;
@@ -36,12 +31,19 @@ public class Main {
 		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
 		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
 		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
-		CharStream stream = new ANTLRInputStream(new FileReader(testfileNoCora));
+		File testLargeECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_small.xtr_human"); // large
+		CharStream stream = new UnbufferedCharStream(new FileInputStream(testLargeECHO));
+		
+		long startTime = System.currentTimeMillis();
 		
 		TraceContext res = parseProgram(stream);
 		GenericParser parser = new GenericParser();
-		res.accept(parser);
+		System.out.println("Recognized in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000/60) + " minutes");
+		startTime = System.currentTimeMillis();
 		
+		res.accept(parser);
+
+		System.out.println("Walked in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
 		
 		if (parser.states != null) {
 			Object inspectMe = parser.states.toArray();
@@ -55,10 +57,12 @@ public class Main {
 	// parse charstream
 	public static TraceContext parseProgram(CharStream stream) {
 		UPPAALTraceLexer lexer = new UPPAALTraceLexer(stream);
+		lexer.setTokenFactory(new CommonTokenFactory(true));
 		Main.ErrorListener listener = new Main.ErrorListener();
 		lexer.addErrorListener(listener);
-		TokenStream tokens = new CommonTokenStream(lexer);
+		TokenStream tokens = new UnbufferedTokenStream<Token>(lexer);
 		UPPAALTraceParser parser = new UPPAALTraceParser(tokens);
+		parser.setBuildParseTree(false); // or big files will not work
 		parser.addErrorListener(listener);
 		TraceContext program = parser.trace();
 		return listener.error ? null : program;

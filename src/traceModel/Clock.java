@@ -80,6 +80,7 @@ public class Clock {
 		public static Relation getByText(String s) {
 			switch (s) {
 			case "=" : return Relation.EQ;
+			case "==": return Relation.EQ; //verifyta
 			case "!=": return Relation.NE;
 			case "<" : return Relation.LT;
 			case "<=": return Relation.LE;

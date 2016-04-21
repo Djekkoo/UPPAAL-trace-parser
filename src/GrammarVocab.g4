@@ -26,14 +26,16 @@ TRANSITION: 'Transition:';	//libutap source
 DELAY: 'Delay:';
 
 MINUS: '-';
+PLUS: '+';
 
-EQ: '=';
+EQ: EQ_TOKEN EQ_TOKEN?;
 NE: '!=';
 GE: '>=';
 GT: '>';
 LE: '<=';
 LT: '<';
 
+EQ_TOKEN: '=';
 AND: '&&';
 OR: '||';
 EXCL: '!';
@@ -42,8 +44,8 @@ QM: '?';
 TIMEZERO: 't(0)';
 BOOL: 'true' | 'false';
 OBJECTREF: (TIMEZERO | VARREF (DOT OBJECTREF)*);
-VARREF: CHAR (CHAR| DIGIT)*;
-REAL: NUM (DOT NUM)?;
+VARREF: CHAR (CHAR| DIGIT)* (LSB DIGIT+ RSB)?;
+REAL: NUM (DOT NUM)? ('e' (PLUS|MINUS) DIGIT DIGIT)?																																																																																																										;
 NUM: MINUS? DIGIT+;
 
 WS: [\t\r\n ]+ -> skip;

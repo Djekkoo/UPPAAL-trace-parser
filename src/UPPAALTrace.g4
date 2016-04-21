@@ -23,10 +23,11 @@ state: STATE systemStates variables clocks;
 // sub definition of state
 systemStates
 	: systemState+? 		// libutap	 
-	| LB systemState+? RB	//  verifyta
+	| LB systemState+? RB	// verifyta
 	;
 variables: variable*;
-assignments: assignment*?; // nocora
+assignments: ( (assignment |funcAssignment) (COMMA? (assignment |funcAssignment) )*?)?; // verifyta 
+//TODO: funcassignments in parser
 clocks: clock*?;
 
 // sub definition of transition
@@ -44,7 +45,8 @@ transitionAssignments
 // general types
 systemState: OBJECTREF;
 variable: OBJECTREF EQ value;
-assignment: OBJECTREF ASSIGN value; //nocora
+assignment: OBJECTREF ASSIGN value; //verifyta
+funcAssignment: OBJECTREF LB value? RB; //verifyta
 clock: clockLHS relation REAL;
 clockLHS
 	: TIMEZERO MINUS OBJECTREF 	#clockLHSZeroMinusObject
@@ -62,11 +64,6 @@ relation
 	| NE
 	;
 	
-value
-	: BOOL 
-	| REAL
-	;
-
 syncExpr
 	: syncExpr AND syncExpr
 	| OBJECTREF EXCL? 		// OBJECTREF EXCL -> libutap, OBJECTREF -> verifyta 
@@ -79,5 +76,12 @@ expr
  	| expr OR expr
  	| EXCL expr
  	| OBJECTREF
+ 	| OBJECTREF LB value? RB // function call
  	| value
  	;
+// TODO: OBJECTREF LB value? RB in parser
+value
+	: BOOL 
+	| REAL
+	;
+ 	
