@@ -31,8 +31,8 @@ public class Main {
 		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
 		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
 		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
-		File testLargeECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_small.xtr_human"); // large
-		CharStream stream = new UnbufferedCharStream(new FileInputStream(testLargeECHO));
+		File testLargeECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_xsmall.xtr_human"); // large
+		CharStream stream = new UnbufferedCharStream(new FileInputStream(testfileCora));
 		
 		long startTime = System.currentTimeMillis();
 		
@@ -46,8 +46,10 @@ public class Main {
 		System.out.println("Walked in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
 		
 		if (parser.states != null) {
+			@SuppressWarnings("unused")
 			Object inspectMe = parser.states.toArray();
 			System.out.println("Program parsed!");
+			System.out.println("number of states " + String.valueOf(parser.states.size()));
 		}
 		
 		System.out.println("Working project set-up!");
@@ -62,7 +64,7 @@ public class Main {
 		lexer.addErrorListener(listener);
 		TokenStream tokens = new UnbufferedTokenStream<Token>(lexer);
 		UPPAALTraceParser parser = new UPPAALTraceParser(tokens);
-		parser.setBuildParseTree(false); // or big files will not work
+		//parser.setBuildParseTree(false); // or big files will not work
 		parser.addErrorListener(listener);
 		TraceContext program = parser.trace();
 		return listener.error ? null : program;
