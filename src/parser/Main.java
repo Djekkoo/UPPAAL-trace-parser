@@ -32,7 +32,7 @@ public class Main {
 		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
 		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
 		File testLargeECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_xsmall.xtr_human"); // large
-		CharStream stream = new UnbufferedCharStream(new FileInputStream(testfileCora));
+		CharStream stream = new UnbufferedCharStream(new FileInputStream(testLargeECHO));
 		
 		long startTime = System.currentTimeMillis();
 		

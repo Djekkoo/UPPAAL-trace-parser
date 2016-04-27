@@ -169,6 +169,9 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			for(int i = 0; i < ctx.assignments().assignment().size(); i++) {
 				assignments.put(ctx.assignments().assignment(i).OBJECTREF().getText(), (String) visit(ctx.assignments().assignment(i).value()));
 			}
+			for(int i = 0; i < ctx.assignments().funcAssignment().size(); i++) {
+				assignments.put((String) visit(ctx.assignments().funcAssignment(i)), null);
+			}
 		}
 		if (ctx.variables() != null) {
 			for(int i = 0; i < ctx.variables().variable().size(); i++) {
@@ -270,6 +273,10 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	}
 	 
 	/**----------------------------------RULES TO STRINGS------------------------------**/
+	
+	public String visitFuncAssignment(FuncAssignmentContext ctx) {
+		return ctx.getText();
+	}
 	
 	// multiple system states to string array
 	public String[] visitSystemStates(SystemStatesContext ctx) {

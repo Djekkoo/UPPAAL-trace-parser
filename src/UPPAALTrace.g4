@@ -1,4 +1,4 @@
-grammar UPPAALTrace; //TODO: ANTLR style conventions. kijken naar semantic predicates
+grammar UPPAALTrace; //TODO: kijken naar semantic predicates
 
 import GrammarVocab;
 
@@ -81,7 +81,6 @@ assignments
 		)*?
 	)?
 ; // verifyta 
-//TODO: funcassignments in parser
 
 clocks
 :
@@ -167,10 +166,9 @@ expr
 	| expr OR expr
 	| EXCL expr
 	| OBJECTREF
-	| OBJECTREF LB value? RB // function call
+	| funcAssignment // function call
 	| value
 ;
-// TODO: OBJECTREF LB value? RB in parser
 
 value
 :
