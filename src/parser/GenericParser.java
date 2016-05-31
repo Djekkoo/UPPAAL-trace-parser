@@ -5,10 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.EList;
+
+import myTrace.TemplateInstance;
 import parser.antlr4.*;
 import parser.antlr4.UPPAALTraceParser.*;
 import traceModel.*;
 import traceModel.StatesTransition.StateTransition;
+import uppaal.NTA;
+import uppaal.declarations.system.InstantiationList;
+import uppaal.templates.AbstractTemplate;
 
 /** A note from the author.
  * 
@@ -31,8 +37,30 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	// a property that should be deduced on as many ways as possible
 	// currently only based on DelayTransactions
 	// the value of this variable is applied to all states
-	private float globalTime = 0; 
+	private float globalTime = 0;
+	private NTA uppaal;
+	private MetaFactory metaFactory; 
 	
+	public GenericParser(NTA uppaal) {
+		this.uppaal = uppaal;
+		this.metaFactory = new MetaFactory();
+		
+		// load templates+locations from uppaal model
+		EList<InstantiationList> instList = this.uppaal.getSystemDeclarations().getSystem().getInstantiationList();
+		int totalTemplates = 0;
+		for (int i = 0; i < instList.size(); i++) {
+			totalTemplates += instList.get(i).getTemplate().size();
+		}
+		TemplateInstance[] templates = new TemplateInstance[totalTemplates];
+		int currentIndex = 0;
+		for (int i = 0; i < instList.size(); i++) {
+			EList<AbstractTemplate> temp = instList.get(i).getTemplate();
+			for (int j = 0; j < temp.size(); j++) {
+				templates[currentIndex++] = this.metaFactory.createTemplateInstance(temp.get(j));
+			}
+		}
+		
+	}
 	// use this method when the parsing has been cut into different batches
 	public void setGlobalTime(float globalTime) {
 		this.globalTime = globalTime;
