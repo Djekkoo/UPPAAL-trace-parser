@@ -17,7 +17,13 @@ import myTrace.Transitions.EdgeTransition;
 import myTrace.Transitions.TransitionsFactory;
 import myTrace.Transitions.TransitionsPackage;
 import myTrace.Transitions.impl.TransitionsPackageImpl;
+import myTrace.clocks.ClocksFactory;
+import myTrace.clocks.CombinedClockBoundary;
+import myTrace.clocks.InverseClockBoundary;
+import myTrace.clocks.SingleClockBoundary;
+import myTrace.clocks.impl.ClocksPackageImpl;
 import myTrace.impl.MyTracePackageImpl;
+import uppaal.declarations.ClockVariableDeclaration;
 import uppaal.templates.AbstractTemplate;
 import uppaal.templates.Edge;
 import uppaal.templates.Location;
@@ -32,11 +38,13 @@ public class MetaFactory {
 
 	private TransitionsFactory transitionsFactory;
 	private MyTraceFactory factory;
+	private ClocksFactory clocksFactory;
 
 
 	public MetaFactory() {
 		factory = (MyTraceFactory) MyTracePackageImpl.eINSTANCE.getEFactoryInstance();
 		transitionsFactory = (TransitionsFactory) TransitionsPackageImpl.eINSTANCE.getEFactoryInstance();
+		clocksFactory = (ClocksFactory) ClocksPackageImpl.eINSTANCE.getEFactoryInstance();
 	}
 	
 	protected LocationInstance createLocationInstance(Location location) {
@@ -45,9 +53,68 @@ public class MetaFactory {
 		return res;
 	}
 	
+	public TemplateInstance createNamedTemplateInstance(AbstractTemplate template, String name) {
+		TemplateInstance res = this.createTemplateInstance(template);
+		res.setName(name);
+		return res;
+	}
+	
+	/**
+	 * clock RELATION value, OR clock - t(0) RELATION value
+	 * @param clock
+	 * @return
+	 */
+	public SingleClockBoundary createSingleClockBoundary(ClockVariableDeclaration clock) {
+		SingleClockBoundary res = this.clocksFactory.createSingleClockBoundary();
+		res.setTarget(clock);
+		return res;
+	}
+	/**
+	 * t(0) - clock RELATION value
+	 * @param clock
+	 * @return
+	 */
+	public InverseClockBoundary createInverseClockBoundary(ClockVariableDeclaration clock) {
+		InverseClockBoundary res = this.clocksFactory.createInverseClockBoundary();
+		res.setTarget(clock);
+		return res;
+	}
+	/**
+	 * minuend - substrahend RELATION value
+	 * @param minuend
+	 * @param substrahend
+	 * @return
+	 */
+	public CombinedClockBoundary createCombinedClockBoundary(ClockVariableDeclaration minuend, ClockVariableDeclaration substrahend) {
+		CombinedClockBoundary res = this.clocksFactory.createCombinedClockBoundary();
+		res.setTarget(minuend);
+		res.setSubtrahend(substrahend);
+		return res;
+	}
+	
+	public TemplateInstance createdNamedTemplateIntance(TemplateInstance template, String name) {
+		TemplateInstance res = this.factory.createTemplateInstance();
+		// copy locations into new EList
+		EList<LocationInstance> locations = template.getLocations();
+		LocationInstance[] copyLocations = new LocationInstance[locations.size()];
+		for (int i = 0; i < locations.size(); i++) {
+			copyLocations[i] =  this.createLocationInstance(locations.get(i).getLocation());
+		}
+		UnmodifiableEList<LocationInstance> eList = new EcoreEList.UnmodifiableEList<LocationInstance>(
+				(InternalEObject) res, 
+				sFeature.LOCATION_INSTANCE, 
+				copyLocations.length, 
+				copyLocations
+			);
+		// set & return
+		res.eSet(sFeature.TEMPLATE_INSTANCE__LOCATIONS, eList);
+		res.setTemplate(template.getTemplate());
+		res.setName(name);
+		return res;
+	}
+	
 	public TemplateInstance createTemplateInstance(AbstractTemplate template) {
 		// create templateInstance
-		TemplateInstance res = factory.createTemplateInstance();
 		Template locProvider = null;
 		// list of locations -> list of locationInstances
 		if (template instanceof Template) {
@@ -65,6 +132,7 @@ public class MetaFactory {
 			throw new RuntimeException("MetaFactory.java implementation is incomplete, please add handling of class " +locProvider.getClass());
 		}
 		
+		TemplateInstance res = factory.createTemplateInstance();
 		EList<Location> locations = locProvider.getLocation();
 		LocationInstance[] locationInstances = new LocationInstance[locations.size()];
 		for (int i = 0; i < locations.size(); i++) {
@@ -78,7 +146,8 @@ public class MetaFactory {
 				locationInstances
 			);
 		// add list to templateInstance
-		res.setTemplate(template);
+		res.setTemplate(locProvider);
+		res.setName(template.getName());
 		res.eSet(sFeature.TEMPLATE_INSTANCE__LOCATIONS, eList);
 		return res;
 	}

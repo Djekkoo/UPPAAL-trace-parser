@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import parser.Pair;
+
 public class StatesTransition implements Transition {
 	
 	private final List<StateTransition> transitions = new ArrayList<StateTransition>();

@@ -1,4 +1,4 @@
-package traceModel;
+package parser;
 
 // Why Java does not have a 2-tuple packed by default remains a mystery to me.
 // I've made it immutable, because I do not need mutable tuples and this eases the use,
