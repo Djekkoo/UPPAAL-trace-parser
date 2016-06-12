@@ -1,6 +1,8 @@
 package parser;
 
 
+import java.util.List;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -12,18 +14,27 @@ import myTrace.MyTraceFactory;
 import myTrace.MyTracePackage;
 import myTrace.State;
 import myTrace.TemplateInstance;
-import myTrace.Transitions.DelayTransition;
-import myTrace.Transitions.EdgeTransition;
-import myTrace.Transitions.TransitionsFactory;
-import myTrace.Transitions.TransitionsPackage;
-import myTrace.Transitions.impl.TransitionsPackageImpl;
+import myTrace.Trace;
+import myTrace.Valuation;
+import myTrace.transitions.DelayTransition;
+import myTrace.transitions.EdgeTransition;
+import myTrace.transitions.TransitionsFactory;
+import myTrace.transitions.TransitionsPackage;
+import myTrace.transitions.impl.TransitionsPackageImpl;
+import myTrace.value.Value;
+import myTrace.clocks.AbstractClockBoundary;
 import myTrace.clocks.ClocksFactory;
+import myTrace.clocks.ClocksPackage;
 import myTrace.clocks.CombinedClockBoundary;
 import myTrace.clocks.InverseClockBoundary;
 import myTrace.clocks.SingleClockBoundary;
 import myTrace.clocks.impl.ClocksPackageImpl;
 import myTrace.impl.MyTracePackageImpl;
+import uppaal.NTA;
+import uppaal.UppaalFactory;
+import uppaal.UppaalPackage;
 import uppaal.declarations.ClockVariableDeclaration;
+import uppaal.declarations.Variable;
 import uppaal.templates.AbstractTemplate;
 import uppaal.templates.Edge;
 import uppaal.templates.Location;
@@ -31,8 +42,7 @@ import uppaal.templates.RedefinedTemplate;
 import uppaal.templates.Template;
 import uppaal.templates.TemplatesPackage;
 import uppaal.templates.impl.TemplatesFactoryImpl;
-import myTrace.Transitions.*;
-import myTrace.Transitions.impl.*;
+import uppaal.types.Type;
 
 public class MetaFactory {
 
@@ -45,6 +55,21 @@ public class MetaFactory {
 		factory = (MyTraceFactory) MyTracePackageImpl.eINSTANCE.getEFactoryInstance();
 		transitionsFactory = (TransitionsFactory) TransitionsPackageImpl.eINSTANCE.getEFactoryInstance();
 		clocksFactory = (ClocksFactory) ClocksPackageImpl.eINSTANCE.getEFactoryInstance();
+	}
+	
+	public Trace createTrace(List<State> states, NTA nta) {
+		Trace res = this.factory.createTrace();
+		res.setNTA(nta);
+		
+		State[] stateArray = (State[]) states.toArray();
+		UnmodifiableEList<LocationInstance> eListStates = new EcoreEList.UnmodifiableEList<LocationInstance>(
+				(InternalEObject) res, 
+				sFeature.STATE, 
+				stateArray.length, 
+				stateArray
+			);
+		res.eSet(sFeature.TRACE__STATES, eListStates);
+		return res;
 	}
 	
 	protected LocationInstance createLocationInstance(Location location) {
@@ -152,27 +177,19 @@ public class MetaFactory {
 		return res;
 	}
 
-	// as the owner of an EList should be set to the newly created element, any provided EList cannot be reused
-	public State createState(EList<TemplateInstance> templates, EList<LocationInstance> locations, float time) {
-		return createState(fromEListToArray(templates), fromEListToArray(locations), time);
-	}
-
-	// as the owner of an EList should be set to the newly created element, any provided EList cannot be reused
-	public State createState(EList<TemplateInstance> templates, LocationInstance[] locations, float time) {
-		return createState(fromEListToArray(templates), locations, time);
-	}
-
-	// as the owner of an EList should be set to the newly created element, any provided EList cannot be reused
-	public State createState(TemplateInstance[] templates, EList<LocationInstance> locations, float time) {
-		return createState(templates, fromEListToArray(locations), time);
+	public Valuation createValuation(String name, Value value) {
+		Valuation res = this.factory.createValuation();
+		res.setName(name);
+		res.setValue(value);
+		return res;
 	}
 	
 	// main createState-method
-	public State createState(TemplateInstance[] templates, LocationInstance[] locations, float time) {
+	public State createState(TemplateInstance[] templates, LocationInstance[] locations, AbstractClockBoundary[] clocks, Valuation[] valuations, float time) {
 		// create state and add time
 		State res = factory.createState();
 		res.setTime(time);
-		// create EList of templates and locations
+		// create EList of templates, locations and clocks
 		UnmodifiableEList<LocationInstance> eListLoc = new EcoreEList.UnmodifiableEList<LocationInstance>(
 				(InternalEObject) res, 
 				sFeature.LOCATION_INSTANCE, 
@@ -186,9 +203,25 @@ public class MetaFactory {
 				templates.length, 
 				templates
 			);
+
+		UnmodifiableEList<TemplateInstance> eListClock = new EcoreEList.UnmodifiableEList<TemplateInstance>(
+				(InternalEObject) res, 
+				sFeature.Clocks.ABSTRACT_CLOCK_BOUNDARY, 
+				clocks.length, 
+				clocks
+			);
+
+		UnmodifiableEList<TemplateInstance> eListVars = new EcoreEList.UnmodifiableEList<TemplateInstance>(
+				(InternalEObject) res, 
+				sFeature.VALUATION, 
+				valuations.length, 
+				valuations
+			);
 		// set EList as state property
 		res.eSet(sFeature.STATE__TEMPLATES, eListTem);
 		res.eSet(sFeature.STATE__LOCATIONS, eListLoc);
+		res.eSet(sFeature.STATE__CLOCKS, eListClock);
+		res.eSet(sFeature.STATE__VALUATIONS, eListVars);
 		
 		return res;
 	}
@@ -212,39 +245,52 @@ public class MetaFactory {
 				edges.length, 
 				edges
 			);
-		res.eSet(sFeatureTransitions.EDGE_TRANSITION__EDGES, eList);
+		res.eSet(sFeature.Transitions.EDGE_TRANSITION__EDGES, eList);
 		return res;
 	}
 	
-	protected <T> T[] fromEListToArray(EList<T> eList) {
+	protected <T> T[] fromListToArray(List<T> list) {
 		@SuppressWarnings("unchecked")
-		T[] res = (T[])new Object[eList.size()];
-		for (int i = 0; i < eList.size(); i++)
-			res[i] = eList.get(i);
+		T[] res = (T[])new Object[list.size()];
+		for (int i = 0; i < list.size(); i++)
+			res[i] = list.get(i);
 		
 		return res;
 	}
-
+	
 	/** Short-hand used to avoid unnecessary long statements in the parent class */
-	private static class sFeature {
-		protected static EStructuralFeature STATE__TEMPLATES = getEStructuralFeature(MyTracePackage.STATE__TEMPLATES);
-		protected static EStructuralFeature STATE__LOCATIONS = getEStructuralFeature(MyTracePackage.STATE__LOCATIONS);
-		protected static EStructuralFeature TEMPLATE_INSTANCE = getEStructuralFeature(MyTracePackage.TEMPLATE_INSTANCE);
-		protected static EStructuralFeature TEMPLATE_INSTANCE__LOCATIONS = getEStructuralFeature(MyTracePackage.TEMPLATE_INSTANCE__LOCATIONS);
-		protected static EStructuralFeature LOCATION_INSTANCE = getEStructuralFeature(MyTracePackage.LOCATION_INSTANCE);
-		
-
+	public static class sFeature {
+		public final static EStructuralFeature STATE__TEMPLATES = getEStructuralFeature(MyTracePackage.STATE__TEMPLATES);
+		public final static EStructuralFeature STATE__LOCATIONS = getEStructuralFeature(MyTracePackage.STATE__LOCATIONS);
+		public final static EStructuralFeature STATE__CLOCKS    = getEStructuralFeature(MyTracePackage.STATE__CLOCKS);
+		public final static EStructuralFeature STATE__VALUATIONS = getEStructuralFeature(MyTracePackage.STATE__VALUATIONS);
+		public final static EStructuralFeature TEMPLATE_INSTANCE = getEStructuralFeature(MyTracePackage.TEMPLATE_INSTANCE);
+		public final static EStructuralFeature TEMPLATE_INSTANCE__LOCATIONS = getEStructuralFeature(MyTracePackage.TEMPLATE_INSTANCE__LOCATIONS);
+		public final static EStructuralFeature LOCATION_INSTANCE = getEStructuralFeature(MyTracePackage.LOCATION_INSTANCE);
+		public final static EStructuralFeature STATE			  = getEStructuralFeature(MyTracePackage.STATE);
+		public final static EStructuralFeature TRACE__STATES	  = getEStructuralFeature(MyTracePackage.TRACE__STATES);
+		public final static EStructuralFeature VALUATION		  = getEStructuralFeature(MyTracePackage.VALUATION);
 		private static EStructuralFeature getEStructuralFeature(int featureID) {
 			return MyTraceFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
 		}
-	}
-	/** Short-hand used to avoid unnecessary long statements in the parent class */
-	private static class sFeatureTransitions {
 		
-		protected static EStructuralFeature EDGE_TRANSITION__EDGES = getEStructuralFeature(TransitionsPackage.EDGE_TRANSITION__EDGES);
+		public static class Transitions {
+			
+			public final static EStructuralFeature EDGE_TRANSITION__EDGES = getEStructuralFeature(TransitionsPackage.EDGE_TRANSITION__EDGES);
 
-		private static EStructuralFeature getEStructuralFeature(int featureID) {
-			return TransitionsFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
+			private static EStructuralFeature getEStructuralFeature(int featureID) {
+				return TransitionsFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
+			}
 		}
+		
+		public static class Clocks {
+			
+			public final static EStructuralFeature ABSTRACT_CLOCK_BOUNDARY = getEStructuralFeature(ClocksPackage.ABSTRACT_CLOCK_BOUNDARY);
+
+			private static EStructuralFeature getEStructuralFeature(int featureID) {
+				return ClocksFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
+			}
+		}
+		
 	}
 }
