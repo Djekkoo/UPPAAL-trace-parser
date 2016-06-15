@@ -40,7 +40,7 @@ public class Main {
 	public final static String LIBUTAP_TRACER_091 = "tracer91"; //unused until a libtap fix is found
 	public final static String LIBUTAP_TRACER_093 = "tracer93"; //unused until a libtap fix is found
 	// please provide manual 
-	public final static URI UPPAAL_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/MyUppaal.ecore");
+	public final static URI UPPAAL_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/uppaal.ecore");
 	
 	public static void main(String[] args) throws URISyntaxException, FileNotFoundException, IOException {
 		
@@ -50,7 +50,7 @@ public class Main {
 		}*/
 
 		// load resource
-		NTA uppaal = (NTA) Main.loadResource("/home/jacco/bachref/examples/small_AT/3.xml");//ADTool_IPTV/3_UPPAAL_MetaModel_instance.xml");
+		//NTA uppaal = (NTA) Main.loadResource("/home/jacco/bachref/examples/small_AT/3.xml");//ADTool_IPTV/3_UPPAAL_MetaModel_instance.xml");
 		
 		// grab a trace file
 		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
@@ -68,25 +68,26 @@ public class Main {
 		System.out.println("Recognized in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
 
 		// create parser
-		GenericParser parser = new GenericParser(uppaal);
+		GenericParser parser = new GenericParser();
 		
 		//measure
 		startTime = System.currentTimeMillis();
 		
 		// parse
-		res.accept(parser);
-		System.out.println("Walked in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
-		
-		// result?
-		if (parser.states != null) {
-			@SuppressWarnings("unused")
-			Object inspectMe = parser.states.toArray();
-			System.out.println("Program parsed!");
-			System.out.println("number of states " + String.valueOf(parser.states.size()));
+		if (res != null) {
+			res.accept(parser);
+			System.out.println("Walked in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
+			
+			// result?
+			if (parser.states != null) {
+				@SuppressWarnings("unused")
+				Object inspectMe = parser.states.toArray();
+				System.out.println("Program parsed!");
+				System.out.println("number of states " + String.valueOf(parser.states.size()));
+			}
+			
+			System.out.println("Working project set-up!");
 		}
-		
-		System.out.println("Working project set-up!");
-		return;
 	}
 	
 	// parse charstream

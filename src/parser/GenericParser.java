@@ -8,22 +8,22 @@ import java.util.Map;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
-import myTrace.transitions.AbstractTransition;
-import myTrace.transitions.DelayTransition;
-import myTrace.transitions.EdgeTransition;
-import myTrace.clocks.AbstractClockBoundary;
-import myTrace.clocks.CombinedClockBoundary;
-import myTrace.clocks.InverseClockBoundary;
-import myTrace.clocks.Relation;
-import myTrace.clocks.SingleClockBoundary;
+import intermediateTrace.transitions.AbstractTransition;
+import intermediateTrace.transitions.DelayTransition;
+import intermediateTrace.transitions.EdgeTransition;
+import intermediateTrace.value.Value;
+import intermediateTrace.LocationInstance;
+import intermediateTrace.State;
+import intermediateTrace.TemplateInstance;
+import intermediateTrace.Trace;
+import intermediateTrace.Valuation;
+import intermediateTrace.clocks.AbstractClockBoundary;
+import intermediateTrace.clocks.CombinedClockBoundary;
+import intermediateTrace.clocks.InverseClockBoundary;
+import intermediateTrace.clocks.Relation;
+import intermediateTrace.clocks.SingleClockBoundary;
 import parser.antlr4.*;
 import parser.antlr4.UPPAALTraceParser.*;
-import uppaal.NTA;
-import uppaal.declarations.ClockVariableDeclaration;
-import uppaal.declarations.system.InstantiationList;
-import uppaal.templates.AbstractTemplate;
-import uppaal.templates.Edge;
-import myTrace.*;
 
 /** A note from the author:
  * 
@@ -38,32 +38,32 @@ import myTrace.*;
  */
 public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	
-	public final ArrayList<myTrace.State> states = new ArrayList<State>();
+	public final ArrayList<State> states = new ArrayList<State>();
 	//private State visitingState = null;
 	
 	// a property that should be deduced on as many ways as possible
 	// currently only based on DelayTransactions
 	// the value of this variable is applied to all states on their construction, and accumulates during parsing.
 	private float globalTime = 0;
-	private NTA uppaal;
+	//private NTA uppaal;
 	private MetaFactory metaFactory; 
-	private List<TemplateInstance> sampleTemplates = new ArrayList<TemplateInstance>();
-	private List<TemplateInstance> usedTemplates = new ArrayList<TemplateInstance>();
+	//private List<TemplateInstance> sampleTemplates = new ArrayList<TemplateInstance>();
+	//private List<TemplateInstance> usedTemplates = new ArrayList<TemplateInstance>();
 	
-	public GenericParser(NTA uppaal2) {
-		this.uppaal = uppaal2;
+	public GenericParser() {
+		//this.uppaal = uppaal2;
 		this.metaFactory = new MetaFactory();
 		
 		// load templates+locations from uppaal model
-		EList<InstantiationList> instList = this.uppaal.getSystemDeclarations().getSystem().getInstantiationList();
+		//EList<InstantiationList> instList = this.uppaal.getSystemDeclarations().getSystem().getInstantiationList();
 		
 		// generate sample-templates from this load
-		for (int i = 0; i < instList.size(); i++) {
-			EList<AbstractTemplate> temp = instList.get(i).getTemplate();
-			for (int j = 0; j < temp.size(); j++) {
-				this.sampleTemplates.add(this.metaFactory.createTemplateInstance(temp.get(j)));
-			}
-		}
+		//for (int i = 0; i < instList.size(); i++) {
+		//	EList<AbstractTemplate> temp = instList.get(i).getTemplate();
+		//	for (int j = 0; j < temp.size(); j++) {
+		//		this.sampleTemplates.add(this.metaFactory.createTemplateInstance(temp.get(j)));
+		//	}
+		//}
 		
 	}
 	// use this method when the parsing has been cut into different batches
@@ -105,14 +105,14 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			
 		}
 		
-		return this.metaFactory.createTrace(this.states, this.uppaal);
+		return this.metaFactory.createTrace(this.states);//, this.uppaal);
 	}
 	/**----------------------------------TRANSITIONS-------------------------------**/
 	// (stateA -> stateB \(guard; sync?; assignments\)) *
 	@SuppressWarnings({ "unchecked", "unused" }) //sorry
 	public EdgeTransition visitTransitionState(TransitionStateContext ctx) {
 		
-		List<Edge> edgeList = new ArrayList<Edge>();
+		List<String> edgeList = new ArrayList<String>();
 		
 		List<TransitionDetailsContext> transitionDetails = ctx.transitionDetails();
 		for (int i = 0; i < transitionDetails.size(); i++) {
@@ -136,8 +136,9 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			String locationFrom = stateA.split("/\\./", 2)[1];
 			String locationTo = stateB.split("/\\./", 2)[1];
 			int j;
+			//TODO: find Edge and add to edgeList
 			// Find Edge and add to 'edgeList'
-			thisIsBadPractice: for (j = 0; j < this.usedTemplates.size(); j++) {
+			/*thisIsBadPractice: for (j = 0; j < this.usedTemplates.size(); j++) {
 				if (this.usedTemplates.get(j).getName().equals(templateName)) {
 					List<Edge> possibleEdges = this.usedTemplates.get(j).getTemplate().getEdge();
 					for (int edgeIterator = 0; edgeIterator < possibleEdges.size(); edgeIterator++) {
@@ -158,11 +159,11 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			// means that we did not find the correct template and/or matching edges
 			if (j == this.usedTemplates.size()) {
 				throw new RuntimeException("Could not find matching edge, please provide the correct model.");
-			}
+			}*/
 			
 		}
 		
-		return this.metaFactory.createEdgeTransition(this.states.get(this.states.size()-2), this.states.get(this.states.size()-1), (Edge[])edgeList.toArray());
+		return this.metaFactory.createEdgeTransition(this.states.get(this.states.size()-2), this.states.get(this.states.size()-1), (String[])edgeList.toArray());
 	}
 
 	// time (+REAL)
@@ -234,17 +235,18 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	public State visitState(StateContext ctx) {
 		
 		String[] states = (String[]) visit(ctx.systemStates());
-		Valuation[] valuations = (Valuation[]) ((List<Valuation>)visit(ctx.variables())).toArray();
+		List<Valuation> tmp = (List<Valuation>)visit(ctx.variables());
+		Valuation[] valuations = MetaFactory.fromListToArray(tmp);
 		TemplateInstance[] stateTemplates = new TemplateInstance[states.length];
 		LocationInstance[] stateLocations = new LocationInstance[states.length];
 		
-		
+
 		// match all locations (& create new instances of template, if necessary)
 		for (int i = 0; i < states.length; i++) {
 			String[] stateParts = states[i].split("/\\./", 2);
-
+			// TODO: Find matching state templates & locations
 			// do we know this template?
-			for (int j = 0; j < this.usedTemplates.size(); j++) {
+			/*for (int j = 0; j < this.usedTemplates.size(); j++) {
 				if (this.usedTemplates.get(j).getName().equals(stateParts[1])) {
 					stateTemplates[i] = this.usedTemplates.get(j);
 				}
@@ -276,7 +278,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			// couldn't find it
 			if (stateLocations[i] == null)
 				throw new RuntimeException("Cannot find a location matching: " + states[i] + ", please provide the correct model");
-			
+			*/
 		}
 
 		// visit and save clocks
@@ -293,7 +295,11 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		// loop over variables and assign value
 		int length = ctx.variable().size();
 		for (int i = 0; i < length; i++) {
-			variables.add((Valuation) this.visit(ctx.variable(i)));
+			Valuation val = (Valuation) this.visit(ctx.variable(i));
+			if (val == null) {
+				System.out.println("fuckme" + ctx.variable(i).getText());
+			}
+			variables.add(val);
 		}
 		
 		return variables;
@@ -301,9 +307,22 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	// variable => OBJECTREF EQ value
 	public Valuation visitVariable(VariableContext ctx) {
 		String object = ctx.OBJECTREF().getText();
-		Object value  = ctx.value().getText();
+		Value resVal  = null;
+		ValueContext value = ctx.value(); // value => BOOL | REAL
+		if (value.BOOL() != null ){
+			resVal = this.metaFactory.createBoolValue(value.BOOL().getText().toLowerCase().equals("true"));
+		}
+		else if (value.REAL() != null) {
+			if (value.REAL().getText().contains(".") || object.contains(".clk")) { // clockvalue
+				resVal = this.metaFactory.createClockValue(Float.parseFloat(value.getText()));
+			} else {
+				resVal = this.metaFactory.createIntValue(Integer.parseInt(value.getText()));
+			}
+		} else {
+			throw new RuntimeException("Variable with unknown value, please add to GenericParser.java:visitVariable."); 
+		}
 		
-		return this.metaFactory.createValuation(object, null);
+		return this.metaFactory.createValuation(object, resVal);
 	}
 	
 	/**----------------------------------CLOCKS -----------------------------------**/
@@ -329,7 +348,8 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		String rel = ctx.relation().getText();
 		Relation relation = null;
 		switch(rel) {
-		case "=":
+		case "=": 
+			// this should not occur, but got it covered anyways
 		case "==":
 			relation = Relation.EQ;
 			break;
@@ -363,24 +383,24 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	// visitClockLHS(ClockLHSContext ctx) is implemented through the following 4 methods
 	// ClockLHS => T(0) - OBJECTREF
 	public InverseClockBoundary visitClockLHSZeroMinusObject(ClockLHSZeroMinusObjectContext ctx) {
-		ClockVariableDeclaration clock = null; // TODO: Find me
+		String clock = ctx.OBJECTREF().getText(); 
 		return this.metaFactory.createInverseClockBoundary(clock);
 	}
 	// ClockLHS => OBJECTREF - T(0)
 	public SingleClockBoundary visitClockLHSObjectMinusZero(ClockLHSObjectMinusZeroContext ctx) {
-		ClockVariableDeclaration clock = null; // TODO: Find me
+		String clock = ctx.OBJECTREF().getText(); 
 		return this.metaFactory.createSingleClockBoundary(clock);
 	}
 	// ClockLHS => OBJECTREF
 	public SingleClockBoundary visitClockLHSObject(ClockLHSObjectContext ctx) {
-		ClockVariableDeclaration clock = null; // TODO: Find me
+		String clock = ctx.OBJECTREF().getText(); 
 		return this.metaFactory.createSingleClockBoundary(clock);
 	}
 	 
 	// ClockLHS => OBJECTREF - OBJECTREF
 	public CombinedClockBoundary visitClockLHSObjectMinusObject(ClockLHSObjectMinusObjectContext ctx) {
-		ClockVariableDeclaration minuend = null; // TODO: Find me
-		ClockVariableDeclaration substrahend = null; // TODO: Find me
+		String minuend = ctx.OBJECTREF(0).getText(); 
+		String substrahend = ctx.OBJECTREF(1).getText(); 
 		return this.metaFactory.createCombinedClockBoundary(minuend, substrahend);
 	}
 	/**----------------------------------RULES TO STRINGS------------------------------**/

@@ -121,7 +121,7 @@ variable
 
 assignment
 :
-	OBJECTREF ASSIGN value
+	OBJECTREF ASSIGN (value | expr)
 ; //verifyta
 
 funcAssignment
@@ -159,11 +159,14 @@ syncExpr
 	| OBJECTREF QM
 ;
 
+math: PLUS | MINUS | MULT | DIVIDE;
+
 expr
 :
 	expr relation expr
 	| expr AND expr
 	| expr OR expr
+	| expr math expr
 	| EXCL expr
 	| OBJECTREF
 	| funcAssignment // function call
