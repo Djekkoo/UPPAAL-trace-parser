@@ -132,9 +132,9 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			// assignments
 			Map<String, String> assignments = (Map<String, String>) visit(transitionDetails.get(i).transitionAssignments());
 			
-			String templateName = stateA.split("/\\./")[0];
-			String locationFrom = stateA.split("/\\./", 2)[1];
-			String locationTo = stateB.split("/\\./", 2)[1];
+			String templateName = stateA.split("\\.")[0];
+			String locationFrom = stateA.split("\\.", 2)[1];
+			String locationTo = stateB.split("\\.", 2)[1];
 			int j;
 			//TODO: find Edge and add to edgeList
 			// Find Edge and add to 'edgeList'
@@ -162,8 +162,8 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			}*/
 			
 		}
-		
-		return this.metaFactory.createEdgeTransition(this.states.get(this.states.size()-2), this.states.get(this.states.size()-1), (String[])edgeList.toArray());
+		edgeList.add("");
+		return this.metaFactory.createEdgeTransition(this.states.get(this.states.size()-2), this.states.get(this.states.size()-1), MetaFactory.fromListToArray(edgeList));
 	}
 
 	// time (+REAL)
@@ -215,7 +215,17 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		HashMap<String, String> assignments = new HashMap<String, String>();
 		if (ctx.assignments() != null) {
 			for(int i = 0; i < ctx.assignments().assignment().size(); i++) {
-				assignments.put(ctx.assignments().assignment(i).OBJECTREF().getText(), (String) visit(ctx.assignments().assignment(i).value()));
+				String value = null;
+				if (ctx.assignments().assignment(i).value() != null) {
+					value = (String) visit(ctx.assignments().assignment(i).value());
+				}
+				else if (ctx.assignments().assignment(i).expr() != null) {
+					value = ctx.assignments().assignment(i).expr().getText();
+				} else {
+					System.out.println("Could not determine value of assignment: " + ctx.assignments().assignment(i).OBJECTREF().getText() + " - in method GenericParser:visitTransitionsAssignment");
+				}
+				assignments.put(ctx.assignments().assignment(i).OBJECTREF().getText(), value);
+			
 			}
 			for(int i = 0; i < ctx.assignments().funcAssignment().size(); i++) {
 				assignments.put((String) visit(ctx.assignments().funcAssignment(i)), null);
@@ -243,8 +253,9 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 
 		// match all locations (& create new instances of template, if necessary)
 		for (int i = 0; i < states.length; i++) {
-			String[] stateParts = states[i].split("/\\./", 2);
-			// TODO: Find matching state templates & locations
+			String[] stateParts = states[i].split("\\.", 2);
+			stateTemplates[i] = this.metaFactory.createNamedTemplateInstance(stateParts[0].split("\\(")[0], stateParts[0]);
+			stateLocations[i] = this.metaFactory.createLocationInstance(stateParts[1]);
 			// do we know this template?
 			/*for (int j = 0; j < this.usedTemplates.size(); j++) {
 				if (this.usedTemplates.get(j).getName().equals(stateParts[1])) {
@@ -283,8 +294,6 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 
 		// visit and save clocks
 		AbstractClockBoundary[] clocks = (AbstractClockBoundary[])visit(ctx.clocks()); 
-		
-		// create state
 		return this.metaFactory.createState(stateTemplates, stateLocations, clocks, valuations, this.globalTime);
 	}
 	/**----------------------------------VARIABLES----------------------------------**/
@@ -313,7 +322,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			resVal = this.metaFactory.createBoolValue(value.BOOL().getText().toLowerCase().equals("true"));
 		}
 		else if (value.REAL() != null) {
-			if (value.REAL().getText().contains(".") || object.contains(".clk")) { // clockvalue
+			if (value.REAL().getText().contains(".")) { // clockvalue
 				resVal = this.metaFactory.createClockValue(Float.parseFloat(value.getText()));
 			} else {
 				resVal = this.metaFactory.createIntValue(Integer.parseInt(value.getText()));

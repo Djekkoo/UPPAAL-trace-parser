@@ -5,7 +5,9 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -27,6 +29,7 @@ import intermediateTrace.transitions.TransitionsPackage;
 import intermediateTrace.transitions.impl.TransitionsPackageImpl;
 import intermediateTrace.value.*;
 import intermediateTrace.value.impl.ValuePackageImpl;
+import uppaal.UppaalPackage;
 import intermediateTrace.clocks.AbstractClockBoundary;
 import intermediateTrace.clocks.ClocksFactory;
 import intermediateTrace.clocks.ClocksPackage;
@@ -34,7 +37,9 @@ import intermediateTrace.clocks.CombinedClockBoundary;
 import intermediateTrace.clocks.InverseClockBoundary;
 import intermediateTrace.clocks.SingleClockBoundary;
 import intermediateTrace.clocks.impl.ClocksPackageImpl;
+import intermediateTrace.impl.IntermediateTraceFactoryImpl;
 import intermediateTrace.impl.IntermediateTracePackageImpl;
+import intermediateTrace.impl.StateImpl;
 
 
 public class MetaFactory {
@@ -55,7 +60,7 @@ public class MetaFactory {
 	public Trace createTrace(List<State> states) {
 		Trace res = this.factory.createTrace();
 		
-		State[] stateArray = (State[]) states.toArray();
+		State[] stateArray = MetaFactory.fromListToArray(states);
 		UnmodifiableEList<LocationInstance> eListStates = new EcoreEList.UnmodifiableEList<LocationInstance>(
 				(InternalEObject) res, 
 				sFeature.STATE, 
@@ -66,7 +71,7 @@ public class MetaFactory {
 		return res;
 	}
 	
-	protected LocationInstance createLocationInstance(String location) {
+	public LocationInstance createLocationInstance(String location) {
 		LocationInstance res = factory.createLocationInstance();
 		res.setLocation(location);
 		return res;
@@ -333,48 +338,48 @@ public class MetaFactory {
 	
 	/** Short-hand used to avoid unnecessary long statements in the parent class */
 	public static class sFeature {
-		public final static EStructuralFeature STATE__TEMPLATES = getEStructuralFeature(IntermediateTracePackage.STATE__TEMPLATES);
-		public final static EStructuralFeature STATE__LOCATIONS = getEStructuralFeature(IntermediateTracePackage.STATE__LOCATIONS);
-		public final static EStructuralFeature STATE__CLOCKS    = getEStructuralFeature(IntermediateTracePackage.STATE__CLOCKS);
-		public final static EStructuralFeature STATE__VALUATIONS = getEStructuralFeature(IntermediateTracePackage.STATE__VALUATIONS);
-		public final static EStructuralFeature TEMPLATE_INSTANCE = getEStructuralFeature(IntermediateTracePackage.TEMPLATE_INSTANCE);
-		public final static EStructuralFeature TEMPLATE_INSTANCE__LOCATIONS = getEStructuralFeature(IntermediateTracePackage.TEMPLATE_INSTANCE__LOCATIONS);
-		public final static EStructuralFeature LOCATION_INSTANCE = getEStructuralFeature(IntermediateTracePackage.LOCATION_INSTANCE);
-		public final static EStructuralFeature STATE			  = getEStructuralFeature(IntermediateTracePackage.STATE);
-		public final static EStructuralFeature TRACE__STATES	  = getEStructuralFeature(IntermediateTracePackage.TRACE__STATES);
-		public final static EStructuralFeature VALUATION		  = getEStructuralFeature(IntermediateTracePackage.VALUATION);
-		private static EStructuralFeature getEStructuralFeature(int featureID) {
-			return IntermediateTraceFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
+		public final static EStructuralFeature STATE__TEMPLATES = IntermediateTracePackageImpl.eINSTANCE.getState_Templates();
+		public final static EStructuralFeature STATE__LOCATIONS = IntermediateTracePackageImpl.eINSTANCE.getState_Locations();
+		public final static EStructuralFeature STATE__CLOCKS    = IntermediateTracePackageImpl.eINSTANCE.getState_Clocks();
+		public final static EStructuralFeature STATE__VALUATIONS = IntermediateTracePackageImpl.eINSTANCE.getState_Valuations();
+		public final static EStructuralFeature TEMPLATE_INSTANCE = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getTemplateInstance());
+		public final static EStructuralFeature TEMPLATE_INSTANCE__LOCATIONS = IntermediateTracePackageImpl.eINSTANCE.getTemplateInstance_Locations();//getEStructuralFeature(IntermediateTracePackageImpl.TEMPLATE_INSTANCE__LOCATIONS);
+		public final static EStructuralFeature LOCATION_INSTANCE = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getLocationInstance());
+		public final static EStructuralFeature STATE			  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getState());
+		public final static EStructuralFeature TRACE__STATES	  = IntermediateTracePackageImpl.eINSTANCE.getTrace_States();//getEStructuralFeature(IntermediateTracePackageImpl.TRACE__STATES);
+		public final static EStructuralFeature VALUATION		  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getValuation());
+		protected static EStructuralFeature getEStructuralFeature(EClass eClass) {
+			
+			EList<EStructuralFeature> tmp = eClass.eClass().getEAllStructuralFeatures();
+			for (EStructuralFeature esf : tmp) {
+				Object o = eClass.eGet(esf);
+				if (o instanceof Class ) {
+					return esf;
+				}
+			}
+			
+			System.out.println("Cannot find EStructuralFeature for eClass: " + eClass.toString());
+			return null;
 		}
 		
 		public static class Transitions {
 			
-			public final static EStructuralFeature EDGE_TRANSITION__EDGES = getEStructuralFeature(TransitionsPackage.EDGE_TRANSITION__EDGES);
+			public final static EStructuralFeature EDGE_TRANSITION__EDGES = TransitionsPackageImpl.eINSTANCE.getEdgeTransition_Edges();
 
-			private static EStructuralFeature getEStructuralFeature(int featureID) {
-				return TransitionsFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
-			}
 		}
 		
 		public static class Clocks {
 			
-			public final static EStructuralFeature ABSTRACT_CLOCK_BOUNDARY = getEStructuralFeature(ClocksPackage.ABSTRACT_CLOCK_BOUNDARY);
-
-			private static EStructuralFeature getEStructuralFeature(int featureID) {
-				return ClocksFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
-			}
+			public final static EStructuralFeature ABSTRACT_CLOCK_BOUNDARY = getEStructuralFeature(ClocksPackage.eINSTANCE.getAbstractClockBoundary());
 		}
 		
 		public static class Values {
-			public static final EStructuralFeature DATA_VARIABLE_DECLARATION_VALUATION__VALUATION = getEStructuralFeature(ValuePackage.DATA_VARIABLE_DECLARATION_VALUATION__VALUATION);;
-			public static final EStructuralFeature STRUCT_SPECIFICATION_VALUE__VALUE = getEStructuralFeature(ValuePackage.STRUCT_SPECIFICATION_VALUE__VALUE);
-			public static final EStructuralFeature DATA_VARIABLE_DECLARATION_VALUATION = getEStructuralFeature(ValuePackage.DATA_VARIABLE_DECLARATION_VALUATION);
-			public static final EStructuralFeature ARRAY_VALUE__VALUE = getEStructuralFeature(ValuePackage.ARRAY_VALUE__VALUE);;
-			public final static EStructuralFeature VALUE = getEStructuralFeature(ValuePackage.VALUE);
+			public static final EStructuralFeature DATA_VARIABLE_DECLARATION_VALUATION__VALUATION = ValuePackageImpl.eINSTANCE.getDataVariableDeclarationValuation_Valuation();
+			public static final EStructuralFeature STRUCT_SPECIFICATION_VALUE__VALUE = ValuePackageImpl.eINSTANCE.getScalarSpecificationValue_Value();
+			public static final EStructuralFeature DATA_VARIABLE_DECLARATION_VALUATION = getEStructuralFeature(ValuePackageImpl.eINSTANCE.getDataVariableDeclarationValuation());
+			public static final EStructuralFeature ARRAY_VALUE__VALUE = ValuePackageImpl.eINSTANCE.getArrayValue_Value();
+			public final static EStructuralFeature VALUE = getEStructuralFeature(ValuePackageImpl.eINSTANCE.getValue());
 			
-			private static EStructuralFeature getEStructuralFeature(int featureID) {
-				return ValueFactory.eINSTANCE.eClass().getEStructuralFeature(featureID);
-			}
 		}
 		
 	}
