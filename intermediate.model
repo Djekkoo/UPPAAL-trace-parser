@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="ASCII"?>
+<intermediateTrace:Trace xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:intermediateTrace="intermediateTrace" xmlns:myTrace.Clocks="myTrace.Clocks" xmlns:myTrace.transitions="myTrace.transitions" xmlns:myTrace.value="myTrace.value">
+  <states transitionTo="//@transitions.0" locations="//@states.0/@templates.0/@locations.0 //@states.0/@templates.1/@locations.0 //@states.0/@templates.2/@locations.0 //@states.0/@templates.3/@locations.0">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="5"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue" value="6"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue" value="10"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue" value="12"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="Sys.clk" subtrahend="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Door.clk" subtrahend="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:SingleClockBoundary" relation="LE" target="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="_id9"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="_id2"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.1" locations="//@states.1/@templates.0/@locations.0 //@states.1/@templates.1/@locations.0 //@states.1/@templates.2/@locations.0 //@states.1/@templates.3/@locations.0" transitionFrom="//@transitions.0">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="2"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="done"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.2" locations="//@states.2/@templates.0/@locations.0 //@states.2/@templates.1/@locations.0 //@states.2/@templates.2/@locations.0 //@states.2/@templates.3/@locations.0" transitionFrom="//@transitions.1">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="5"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue" value="6"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue" value="10"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue" value="12"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Door.clk" subtrahend="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Window.clk" subtrahend="Sys.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="busy"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="fired"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.3" locations="//@states.3/@templates.0/@locations.0 //@states.3/@templates.1/@locations.0 //@states.3/@templates.2/@locations.0 //@states.3/@templates.3/@locations.0" transitionFrom="//@transitions.2">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="2"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="Sys.clk" subtrahend="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="done"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="fired"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.4" locations="//@states.4/@templates.0/@locations.0 //@states.4/@templates.1/@locations.0 //@states.4/@templates.2/@locations.0 //@states.4/@templates.3/@locations.0" transitionFrom="//@transitions.3">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="5"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue" value="6"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue" value="10"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue" value="12"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Door.clk" subtrahend="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Window.clk" subtrahend="Sys.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="_id9"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="t(0)"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.5" locations="//@states.5/@templates.0/@locations.0 //@states.5/@templates.1/@locations.0 //@states.5/@templates.2/@locations.0 //@states.5/@templates.3/@locations.0" transitionFrom="//@transitions.4">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="2"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue" value="-9"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="Sys.clk" subtrahend="d_Door.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="busy"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="failed"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.6" locations="//@states.6/@templates.0/@locations.0 //@states.6/@templates.1/@locations.0 //@states.6/@templates.2/@locations.0 //@states.6/@templates.3/@locations.0" transitionFrom="//@transitions.5">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="5"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue" value="6"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue" value="10"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue" value="12"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Door.clk" subtrahend="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Window.clk" subtrahend="Sys.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="_id9"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="t(0)"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.7" locations="//@states.7/@templates.0/@locations.0 //@states.7/@templates.1/@locations.0 //@states.7/@templates.2/@locations.0 //@states.7/@templates.3/@locations.0" transitionFrom="//@transitions.6">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="2"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue" value="-9"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="busy"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="_id6"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id6"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="t(0)"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.8" locations="//@states.8/@templates.0/@locations.0 //@states.8/@templates.1/@locations.0 //@states.8/@templates.2/@locations.0 //@states.8/@templates.3/@locations.0" transitionFrom="//@transitions.7">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="5"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue" value="6"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue" value="10"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue" value="12"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" relation="LE" target="d_Window.clk" subtrahend="Sys.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="_id9"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="failed"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.9" locations="//@states.9/@templates.0/@locations.0 //@states.9/@templates.1/@locations.0 //@states.9/@templates.2/@locations.0 //@states.9/@templates.3/@locations.0" transitionFrom="//@transitions.8">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="3"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" value="1.0" relation="LT" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="t(0)"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="failed"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="_id1"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.10" locations="//@states.10/@templates.0/@locations.0 //@states.10/@templates.1/@locations.0 //@states.10/@templates.2/@locations.0 //@states.10/@templates.3/@locations.0" transitionFrom="//@transitions.9">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="5"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue" value="6"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue" value="10"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue" value="12"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <clocks xsi:type="myTrace.Clocks:CombinedClockBoundary" value="-5.0" relation="LT" target="d_Window.clk" subtrahend="d_Door.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="t(0)"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="t(0)"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.11" locations="//@states.11/@templates.0/@locations.0 //@states.11/@templates.1/@locations.0 //@states.11/@templates.2/@locations.0 //@states.11/@templates.3/@locations.0" transitionFrom="//@transitions.10">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="3"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue" value="-19"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LT" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="_id9"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="failed"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states transitionTo="//@transitions.12" locations="//@states.12/@templates.0/@locations.0 //@states.12/@templates.1/@locations.0 //@states.12/@templates.2/@locations.0 //@states.12/@templates.3/@locations.0" transitionFrom="//@transitions.11">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue" value="5"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue" value="6"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue" value="10"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue" value="12"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue" value="1"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="t(0)"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="fired"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="t(0)"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <states locations="//@states.13/@templates.0/@locations.0 //@states.13/@templates.1/@locations.0 //@states.13/@templates.2/@locations.0 //@states.13/@templates.3/@locations.0" transitionFrom="//@transitions.12">
+    <valuations variable="f" name="f">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="t" name="t">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="system_done" name="system_done">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.min" name="d_Door.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.max" name="d_Door.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Door.id" name="d_Door.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.min" name="d_Window.min">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.max" name="d_Window.max">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <valuations variable="d_Window.id" name="d_Window.id">
+      <value xsi:type="myTrace.value:IntValue"/>
+    </valuations>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="Sys.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Door.clk"/>
+    <clocks xsi:type="myTrace.Clocks:InverseClockBoundary" relation="LE" target="d_Window.clk"/>
+    <templates template="Sys" name="Sys">
+      <locations location="_id9"/>
+    </templates>
+    <templates template="d_Door" name="d_Door">
+      <locations location="fired"/>
+    </templates>
+    <templates template="d_Window" name="d_Window">
+      <locations location="_id3"/>
+    </templates>
+    <templates template="d_EnterRoom" name="d_EnterRoom">
+      <locations location="done"/>
+    </templates>
+  </states>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.0" target="//@states.1">
+    <edges>Sys.busy->Sys.done{1;a?;system_done=1;}</edges>
+  </transitions>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.1" target="//@states.2"/>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.2" target="//@states.3">
+    <edges>d_Door._id6->d_Door.fired{clk>min&amp;&amp;!system_done;a!;1;}</edges>
+  </transitions>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.3" target="//@states.4"/>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.4" target="//@states.5">
+    <edges>d_Door._id6->d_Door.fired{clk>min&amp;&amp;!system_done;a!;1;}</edges>
+  </transitions>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.5" target="//@states.6"/>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.6" target="//@states.7">
+    <edges>d_Door._id6->d_Door.fired{clk>min&amp;&amp;!system_done;a!;1;}</edges>
+  </transitions>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.7" target="//@states.8"/>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.8" target="//@states.9">
+    <edges>d_Window._id3->d_Window._id6{1;0;clk=0;}</edges>
+  </transitions>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.9" target="//@states.10"/>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.10" target="//@states.11">
+    <edges>d_Window._id3->d_Window._id6{1;0;clk=0;}</edges>
+  </transitions>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.11" target="//@states.12"/>
+  <transitions xsi:type="myTrace.transitions:EdgeTransition" source="//@states.12" target="//@states.13"/>
+</intermediateTrace:Trace>

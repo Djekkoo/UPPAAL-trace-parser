@@ -2,6 +2,7 @@ package parser;
 
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
@@ -22,6 +23,7 @@ import intermediateTrace.State;
 import intermediateTrace.TemplateInstance;
 import intermediateTrace.Trace;
 import intermediateTrace.Valuation;
+import intermediateTrace.transitions.AbstractTransition;
 import intermediateTrace.transitions.DelayTransition;
 import intermediateTrace.transitions.EdgeTransition;
 import intermediateTrace.transitions.TransitionsFactory;
@@ -57,17 +59,27 @@ public class MetaFactory {
 		valuesFactory = (ValueFactory) ValuePackageImpl.eINSTANCE.getEFactoryInstance();
 	}
 	
-	public Trace createTrace(List<State> states) {
+	public Trace createTrace(List<State> states, List<AbstractTransition> transitions) {
 		Trace res = this.factory.createTrace();
-		
+
 		State[] stateArray = MetaFactory.fromListToArray(states);
-		UnmodifiableEList<LocationInstance> eListStates = new EcoreEList.UnmodifiableEList<LocationInstance>(
+		UnmodifiableEList<State> eListStates = new EcoreEList.UnmodifiableEList<State>(
 				(InternalEObject) res, 
 				sFeature.STATE, 
 				stateArray.length, 
 				stateArray
 			);
 		res.eSet(sFeature.TRACE__STATES, eListStates);
+
+		AbstractTransition[] transArray = MetaFactory.fromListToArray(transitions, new AbstractTransition[transitions.size()]);
+		UnmodifiableEList<AbstractTransition> eListTrans = new EcoreEList.UnmodifiableEList<AbstractTransition>(
+				(InternalEObject) res, 
+				sFeature.Transitions.ABSTRACT_TRANSITION, 
+				transArray.length, 
+				transArray
+			);
+		res.eSet(sFeature.TRACE__TRANSITIONS, eListTrans);
+		
 		return res;
 	}
 	
@@ -210,7 +222,7 @@ public class MetaFactory {
 	
 	public ArrayValue createArrayValue(Value[] value) {
 		ArrayValue res = this.valuesFactory.createArrayValue();
-		UnmodifiableEList<LocationInstance> eList = new EcoreEList.UnmodifiableEList<LocationInstance>(
+		UnmodifiableEList<Value> eList = new EcoreEList.UnmodifiableEList<Value>(
 				(InternalEObject) res, 
 				sFeature.Values.VALUE, 
 				value.length, 
@@ -227,7 +239,7 @@ public class MetaFactory {
 
 	public StructSpecificationValue createStructSpecificationValue(DataVariableDeclarationValuation[] value) {
 		StructSpecificationValue res = this.valuesFactory.createStructSpecificationValue();
-		UnmodifiableEList<LocationInstance> eList = new EcoreEList.UnmodifiableEList<LocationInstance>(
+		UnmodifiableEList<DataVariableDeclarationValuation> eList = new EcoreEList.UnmodifiableEList<DataVariableDeclarationValuation>(
 				(InternalEObject) res, 
 				sFeature.Values.DATA_VARIABLE_DECLARATION_VALUATION, 
 				value.length, 
@@ -240,7 +252,7 @@ public class MetaFactory {
 	public DataVariableDeclarationValuation createDataVariableDeclarationValuation(String dataVariableDeclaration, Valuation[] valuations) {
 		DataVariableDeclarationValuation res = this.valuesFactory.createDataVariableDeclarationValuation();
 		res.setDataVariableDeclaration(dataVariableDeclaration);
-		UnmodifiableEList<LocationInstance> eList = new EcoreEList.UnmodifiableEList<LocationInstance>(
+		UnmodifiableEList<Valuation> eList = new EcoreEList.UnmodifiableEList<Valuation>(
 				(InternalEObject) res, 
 				sFeature.VALUATION, 
 				valuations.length, 
@@ -276,14 +288,14 @@ public class MetaFactory {
 				templates
 			);
 
-		UnmodifiableEList<TemplateInstance> eListClock = new EcoreEList.UnmodifiableEList<TemplateInstance>(
+		UnmodifiableEList<AbstractClockBoundary> eListClock = new EcoreEList.UnmodifiableEList<AbstractClockBoundary>(
 				(InternalEObject) res, 
 				sFeature.Clocks.ABSTRACT_CLOCK_BOUNDARY, 
 				clocks.length, 
 				clocks
 			);
 
-		UnmodifiableEList<TemplateInstance> eListVars = new EcoreEList.UnmodifiableEList<TemplateInstance>(
+		UnmodifiableEList<Valuation> eListVars = new EcoreEList.UnmodifiableEList<Valuation>(
 				(InternalEObject) res, 
 				sFeature.VALUATION, 
 				valuations.length, 
@@ -330,10 +342,21 @@ public class MetaFactory {
 			return (T[]) new Object[0];
 		}
 		T[] res = (T[]) Array.newInstance(list.get(0).getClass(), list.size());
-		for (int i = 0; i < list.size(); i++)
-			res[i] = list.get(i);
+		//for (int i = 0; i < list.size(); i++)
+		//	res[i] = list.get(i);
+		return fromListToArray(list, res);
+	}
+	
+	protected static <T extends B, B> B[] fromListToArray(List<T> list, B[] array) {
+		if (list.size() != array.length) {
+			System.out.println("Array and list lengths do not match, returning null in MetaFactory:fromListToArray(List, Array)");
+			return null;
+		}
 		
-		return res;
+		for (int i = 0; i < list.size(); i++)
+			array[i] = list.get(i);
+		
+		return array;
 	}
 	
 	/** Short-hand used to avoid unnecessary long statements in the parent class */
@@ -346,7 +369,8 @@ public class MetaFactory {
 		public final static EStructuralFeature TEMPLATE_INSTANCE__LOCATIONS = IntermediateTracePackageImpl.eINSTANCE.getTemplateInstance_Locations();//getEStructuralFeature(IntermediateTracePackageImpl.TEMPLATE_INSTANCE__LOCATIONS);
 		public final static EStructuralFeature LOCATION_INSTANCE = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getLocationInstance());
 		public final static EStructuralFeature STATE			  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getState());
-		public final static EStructuralFeature TRACE__STATES	  = IntermediateTracePackageImpl.eINSTANCE.getTrace_States();//getEStructuralFeature(IntermediateTracePackageImpl.TRACE__STATES);
+		public final static EStructuralFeature TRACE__STATES	  = IntermediateTracePackageImpl.eINSTANCE.getTrace_States();
+		public final static EStructuralFeature TRACE__TRANSITIONS = IntermediateTracePackageImpl.eINSTANCE.getTrace_Transitions();
 		public final static EStructuralFeature VALUATION		  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getValuation());
 		protected static EStructuralFeature getEStructuralFeature(EClass eClass) {
 			
@@ -364,6 +388,7 @@ public class MetaFactory {
 		
 		public static class Transitions {
 			
+			public static final EStructuralFeature ABSTRACT_TRANSITION = getEStructuralFeature(TransitionsPackage.eINSTANCE.getAbstractTransition());
 			public final static EStructuralFeature EDGE_TRANSITION__EDGES = TransitionsPackageImpl.eINSTANCE.getEdgeTransition_Edges();
 
 		}

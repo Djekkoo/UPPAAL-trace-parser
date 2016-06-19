@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.antlr.v4.runtime.*;
@@ -16,7 +18,11 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
+import intermediateTrace.Trace;
+import intermediateTrace.impl.StateImpl;
+import intermediateTrace.transitions.AbstractTransition;
 import parser.antlr4.UPPAALTraceLexer;
 import parser.antlr4.UPPAALTraceParser;
 import parser.antlr4.UPPAALTraceParser.TraceContext;
@@ -37,11 +43,21 @@ import uppaal.visuals.impl.VisualsFactoryImpl;
 public class Main {
 
 	// refers to the executable of the trace tool of libutap.
-	public final static String LIBUTAP_TRACER_091 = "tracer91"; //unused until a libtap fix is found
-	public final static String LIBUTAP_TRACER_093 = "tracer93"; //unused until a libtap fix is found
-	// please provide manual 
-	public final static URI UPPAAL_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/uppaal.ecore");
+	//public final static String LIBUTAP_TRACER_091 = "tracer91"; //unused until a libtap fix is found
+	//public final static String LIBUTAP_TRACER_093 = "tracer93"; //unused until a libtap fix is found
 	
+
+	protected static final File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
+	protected static final File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
+	protected static final File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
+	protected static final File testLargeECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_small.xtr_human"); // large
+	protected static final File IPTV = new File("/home/jacco/bachref/examples/ADTool_IPTV/6_UPPAAL_result_trace_small.txt");
+	
+	// please provide manual 
+	public static final URI UPPAAL_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/uppaal.ecore");
+	public static final URI INTERMEDIATE_TRACE_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/intermediateTrace.ecore");;
+
+
 	public static void main(String[] args) throws URISyntaxException, FileNotFoundException, IOException {
 		
 		/*if (args.length < 3) {
@@ -49,49 +65,54 @@ public class Main {
 			return;
 		}*/
 
-		// load resource
-		//NTA uppaal = (NTA) Main.loadResource("/home/jacco/bachref/examples/small_AT/3.xml");//ADTool_IPTV/3_UPPAAL_MetaModel_instance.xml");
+		// parse
+		new Main(testfileCora);
 		
-		// grab a trace file
-		File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
-		File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
-		File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
-		File testLargeECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_small.xtr_human"); // large
-		File IPTV = new File("/home/jacco/bachref/examples/ADTool_IPTV/6_UPPAAL_result_trace.txt");
-		CharStream stream = new UnbufferedCharStream(new FileInputStream(IPTV));
+	}
+	public Main(File iptv) throws FileNotFoundException {
+		TraceContext ctx = this.getTraceContext(iptv);
+		Trace trace = this.parseTraceContext(ctx);
+		System.out.println("Found " + trace.getStates().size() + " states");
+
+		URI file = URI.createFileURI("/home/jacco/bachref/parser/intermediate.model");
+		boolean success = this.saveResource(trace, file);
+		if (!success)
+			System.out.println("Could not save resource!");
+		else
+			System.out.println("Saved resource as: " + file.path());
+	}
+	
+	public Trace parseTraceContext(TraceContext ctx) {
+		if (ctx == null) {
+			System.out.println("Could not parse trace, TraceContext is null");
+			return null;
+		}
 		
-		// measure time
 		long startTime = System.currentTimeMillis();
 		
-		// create AST
-		TraceContext res = parseProgram(stream);
-		System.out.println("Recognized in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
-
-		// create parser
-		GenericParser parser = new GenericParser();
-		
-		//measure
-		startTime = System.currentTimeMillis();
-		
 		// parse
-		if (res != null) {
-			res.accept(parser);
-			System.out.println("Walked in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
-			
-			// result?
-			if (parser.states != null) {
-				@SuppressWarnings("unused")
-				Object inspectMe = parser.states.toArray();
-				System.out.println("Program parsed!");
-				System.out.println("number of states " + String.valueOf(parser.states.size()));
-			}
-			
-			System.out.println("Working project set-up!");
-		}
+		GenericParser parser = new GenericParser();
+		ctx.accept(parser);
+		Trace res = parser.buildTrace();
+		System.out.println("Parsed in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
+		
+		return res;
+	}
+	
+	
+	public TraceContext getTraceContext(File traceFile) throws FileNotFoundException {
+		System.out.println("Loading file: " + traceFile.getAbsolutePath());
+		CharStream stream = new UnbufferedCharStream(new FileInputStream(traceFile));
+		
+		long startTime = System.currentTimeMillis();
+		TraceContext res = parseProgram(stream);
+		
+		System.out.println("Recognized in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
+		return res;
 	}
 	
 	// parse charstream
-	public static TraceContext parseProgram(CharStream stream) {
+	protected TraceContext parseProgram(CharStream stream) {
 		UPPAALTraceLexer lexer = new UPPAALTraceLexer(stream);
 		lexer.setTokenFactory(new CommonTokenFactory(true));
 		Main.ErrorListener listener = new Main.ErrorListener();
@@ -182,14 +203,34 @@ public class Main {
 				return loaded;
 		}
 		
-		
-
-		
 		System.out.println("Loaded model is not of type UPPAAL, cannot continue.");
 		System.exit(1);
 		return null; // required after an System.exit(int), because of compiler errors
 	}
 
+	public boolean saveResource(Trace trace, URI modelFile) {
+		try {
+			// I dont necessarily know if this part of the code is doing anything, 
+			// I just don't want to risk removing it. 
+			ResourceSet rs = new ResourceSetImpl(); 
+			rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
+			Resource res = rs.createResource(Main.INTERMEDIATE_TRACE_ECORE);
+			res.load(null);
+			EPackage metapackage = (EPackage)res.getContents().get(0);
+			
+			ResourceSet resourceSet = new ResourceSetImpl();
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
+			Resource resource = resourceSet.createResource(modelFile);
+			
+			// add & save
+			resource.getContents().add(trace);
+			resource.save(Collections.EMPTY_MAP);
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
 	private static class ErrorListener extends BaseErrorListener {
 		private boolean error = false;
@@ -200,17 +241,6 @@ public class Main {
 			error = true;
 		}
 	}
-	
-	/** TEMP SAVE 
-	 * 
-try {
-	if((int)ExpressionsPackage.class.getDeclaredField(eClass.getName().replaceAll("([A-Z])",  "_$1").substring(1).toUpperCase()).get(int.class) > 0) {
-		return (EObject)ExpressionsFactoryImpl.class.getMethod("create"+eClass.getName()).invoke(this);
-	}
-} catch (Exception e) {
-}
-throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
-	 */
 
 	
 }
