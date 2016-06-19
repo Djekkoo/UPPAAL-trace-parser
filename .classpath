@@ -7,7 +7,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="antlr-binaries/antlr-4.5.2-complete.jar"/>
-	<classpathentry kind="src" path="/MyTrace-model"/>
 	<classpathentry kind="lib" path="/home/jacco/eclipse-epsilon-1.3-linux-gtk-x86_64/plugins/org.eclipse.emf.ecore_2.11.2.v20160208-0816.jar" sourcepath="/home/jacco/eclipse-epsilon-1.3-linux-gtk-x86_64/plugins/org.eclipse.emf.ecore.source_2.11.2.v20160208-0816.jar">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/eclipse/emf/ecore/*"/>
@@ -43,5 +42,6 @@
 			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
 		</accessrules>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

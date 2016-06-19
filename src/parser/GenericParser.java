@@ -5,13 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
-
-import intermediateTrace.transitions.AbstractTransition;
-import intermediateTrace.transitions.DelayTransition;
-import intermediateTrace.transitions.EdgeTransition;
-import intermediateTrace.value.Value;
 import intermediateTrace.LocationInstance;
 import intermediateTrace.State;
 import intermediateTrace.TemplateInstance;
@@ -22,7 +15,14 @@ import intermediateTrace.clocks.CombinedClockBoundary;
 import intermediateTrace.clocks.InverseClockBoundary;
 import intermediateTrace.clocks.Relation;
 import intermediateTrace.clocks.SingleClockBoundary;
-import parser.antlr4.*;
+import intermediateTrace.transitions.AbstractTransition;
+import intermediateTrace.transitions.DelayTransition;
+import intermediateTrace.transitions.EdgeTransition;
+import intermediateTrace.value.ArrayValue;
+import intermediateTrace.value.DataVariableDeclarationValuation;
+import intermediateTrace.value.StructSpecificationValue;
+import intermediateTrace.value.Value;
+import parser.antlr4.UPPAALTraceBaseVisitor;
 import parser.antlr4.UPPAALTraceParser.*;
 
 /** A note from the author:
@@ -40,6 +40,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	
 	private final ArrayList<State> states = new ArrayList<State>();
 	private final ArrayList<AbstractTransition> transitions = new ArrayList<AbstractTransition>();
+	private final ArrayList<TemplateInstance> templates = new ArrayList<TemplateInstance>(); 
 	//private State visitingState = null;
 	
 	// a property that should be deduced on as many ways as possible
@@ -47,7 +48,8 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	// the value of this variable is applied to all states on their construction, and accumulates during parsing.
 	private float globalTime = 0;
 	//private NTA uppaal;
-	private MetaFactory metaFactory; 
+	private MetaFactory metaFactory;
+	private ArrayList<Valuation> valuations; 
 	//private List<TemplateInstance> sampleTemplates = new ArrayList<TemplateInstance>();
 	//private List<TemplateInstance> usedTemplates = new ArrayList<TemplateInstance>();
 	
@@ -55,7 +57,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		this.metaFactory = new MetaFactory();
 	}
 	public Trace buildTrace() {
-		return this.metaFactory.createTrace(this.states, this.transitions);
+		return this.metaFactory.createTrace(this.states, this.transitions, this.templates);
 	}
 	
 	// use this method when the parsing has been cut into different batches
@@ -107,7 +109,6 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	}
 	/**----------------------------------TRANSITIONS-------------------------------**/
 	// (stateA -> stateB \(guard; sync?; assignments\)) *
-	@SuppressWarnings({ "unchecked", "unused" }) //sorry
 	public EdgeTransition visitTransitionState(TransitionStateContext ctx) {
 		
 		List<String> edgeList = new ArrayList<String>();
@@ -201,8 +202,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		
 
 		String[] states = (String[]) visit(ctx.systemStates());
-		List<Valuation> tmp = (List<Valuation>)visit(ctx.variables());
-		Valuation[] valuations = MetaFactory.fromListToArray(tmp);
+		Valuation[] valuations = MetaFactory.fromListToArray((List<Valuation>)visit(ctx.variables()));
 		TemplateInstance[] stateTemplates = new TemplateInstance[states.length];
 		LocationInstance[] stateLocations = new LocationInstance[states.length];
 		
@@ -210,9 +210,36 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 		// match all locations (& create new instances of template, if necessary)
 		for (int i = 0; i < states.length; i++) {
 			String[] stateParts = states[i].split("\\.", 2);
-			stateTemplates[i] = this.metaFactory.createNamedTemplateInstance(stateParts[0].split("\\(")[0], stateParts[0]);
-			stateLocations[i] = this.metaFactory.createLocationInstance(stateParts[1]);
-			stateLocations[i].setTemplate(stateTemplates[i]);
+			// reuse template
+			for (int j = 0; j < this.templates.size() && stateTemplates[i] == null; j++) {
+				if (this.templates.get(j).getName().equals(stateParts[0])) {
+					stateTemplates[i] = this.templates.get(j);
+				}
+			}
+			
+			// create new template
+			if (stateTemplates[i] == null) {
+				stateTemplates[i] = this.metaFactory.createNamedTemplateInstance(stateParts[0].split("\\(")[0], stateParts[0]);
+				stateLocations[i] = this.metaFactory.createLocationInstance(stateParts[1]);
+				stateLocations[i].setTemplate(stateTemplates[i]);
+				this.templates.add(stateTemplates[i]);
+			}
+			
+			// no new template, so no state coupled. Does this location already exist?
+			if (stateLocations[i] == null) {
+				for (int j = 0; j < stateTemplates[i].getLocations().size(); j++) {
+					if (stateTemplates[i].getLocations().get(j).getLocation().equals(stateParts[1])) {
+						stateLocations[i] = stateTemplates[i].getLocations().get(j);
+					}
+				}
+			}
+			// no, add new location.
+			if (stateLocations[i] == null) {
+				stateLocations[i] = this.metaFactory.createLocationInstance(stateParts[1]);
+				stateLocations[i].setTemplate(stateTemplates[i]);
+			}
+			
+				
 		}
 
 		// visit and save clocks
@@ -222,7 +249,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	/**----------------------------------VARIABLES----------------------------------**/
 	// get all variable values in hashmap 
 	public List<Valuation> visitVariables(VariablesContext ctx) {
-		List<Valuation> variables = new ArrayList<Valuation>();
+		this.valuations = new ArrayList<Valuation>();
 		
 		// loop over variables and assign value
 		int length = ctx.variable().size();
@@ -230,18 +257,76 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			Valuation val = (Valuation) this.visit(ctx.variable(i));
 			if (val == null) {
 				System.out.println("invalid implementation for " + ctx.variable(i).getText());
-			} else {
-				variables.add(val);
+			} else if (this.valuations.contains(val) == false) {// no duplicates(array/structs)
+				this.valuations.add(val);
 			}
 		}
 		
-		return variables;
+		return this.valuations;
 	}
 	// variable => OBJECTREF EQ value
 	public Valuation visitVariable(VariableContext ctx) {
 		String object = ctx.OBJECTREF().getText();
 		Value resVal  = null;
+		Valuation val = null;
 		ValueContext value = ctx.value(); // value => BOOL | REAL
+		TemplateInstance tmpInstance = null;
+		
+		// template or global?
+		if (object.contains(".")) {
+			String[] seperated = object.split("\\.",2);
+			for (int i = 0; i < this.templates.size() && tmpInstance == null; i++) {
+				// first dot is a template?
+				if (this.templates.get(i).getName().equals(seperated[0])) {
+					tmpInstance = this.templates.get(i);
+				}
+			}
+			
+			// remove template name
+			object = seperated[1];
+		}
+		
+		// struct?
+		if (object.contains(".")) {
+			String[] seperated = object.split("\\.",2);
+			for (int i = 0; i < this.valuations.size(); i++) {
+				// already has parent of this struct?
+				if (this.valuations.get(i).getName().equals(seperated[0]) && 
+						this.valuations.get(i).getTemplate().equals(tmpInstance)) {
+					val = this.valuations.get(i);
+				}
+			}
+			if (val == null) {
+				Value structValue = this.metaFactory.createStructSpecificationValue(new DataVariableDeclarationValuation[0]);
+				val = this.metaFactory.createValuation(seperated[0], structValue, tmpInstance);
+			}
+			object = seperated[1];
+		}
+		
+		// array?
+		if (object.contains("[") && object.indexOf("]") > object.indexOf("[")) {
+			// verifyta and libutap always output variables in their indexed order. No need to double-check that here!
+			String[] seperated = object.split("\\[",2);
+			for (int i = 0; i < this.valuations.size(); i++) {
+				// already has parent of this struct?
+				if (this.valuations.get(i).getName().equals(seperated[0]) && 
+						(
+								(
+										this.valuations.get(i).getTemplate() != null && 
+										this.valuations.get(i).getTemplate().equals(tmpInstance)
+								) || (
+									this.valuations.get(i).getTemplate() == null && tmpInstance == null	
+								)
+						)) {
+					val = this.valuations.get(i);
+				}
+			}
+			if (val == null) {
+				Value arrayValue = this.metaFactory.createArrayValue(new Value[0]);
+				val = this.metaFactory.createValuation(seperated[0], arrayValue, tmpInstance);
+			}
+		}
+		
 		if (value.BOOL() != null ){
 			resVal = this.metaFactory.createBoolValue(value.BOOL().getText().toLowerCase().equals("true"));
 		}
@@ -255,7 +340,21 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			throw new RuntimeException("Variable with unknown value, please add to GenericParser.java:visitVariable."); 
 		}
 		
-		return this.metaFactory.createValuation(object, resVal);
+		// either struct or array
+		if (val != null) {
+			Valuation subValuation = this.metaFactory.createValuation(object, resVal, tmpInstance);
+			
+			// struct
+			if (val.getValue() instanceof StructSpecificationValue) {
+				this.metaFactory.addValuationToStructValue((StructSpecificationValue) val, subValuation);
+			// array
+			} else {
+				this.metaFactory.addItemToArrayValue((ArrayValue) val.getValue(), resVal);
+			}
+			return val;
+		}
+		
+		return this.metaFactory.createValuation(object, resVal, tmpInstance);
 	}
 	
 	/**----------------------------------CLOCKS -----------------------------------**/

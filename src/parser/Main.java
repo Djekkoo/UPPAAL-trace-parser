@@ -5,40 +5,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import org.antlr.v4.runtime.*;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EFactory;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
 import intermediateTrace.Trace;
-import intermediateTrace.impl.StateImpl;
-import intermediateTrace.transitions.AbstractTransition;
 import parser.antlr4.UPPAALTraceLexer;
 import parser.antlr4.UPPAALTraceParser;
 import parser.antlr4.UPPAALTraceParser.TraceContext;
-import uppaal.NTA;
-import uppaal.UppaalPackage;
-import uppaal.declarations.global.impl.GlobalFactoryImpl;
-import uppaal.declarations.impl.DeclarationsFactoryImpl;
-import uppaal.declarations.system.impl.SystemFactoryImpl;
-import uppaal.expressions.ExpressionsPackage;
-import uppaal.expressions.impl.ExpressionsFactoryImpl;
-import uppaal.impl.UppaalFactoryImpl;
-import uppaal.statements.impl.StatementsFactoryImpl;
-import uppaal.templates.impl.TemplatesFactoryImpl;
-import uppaal.types.core.impl.CoreFactoryImpl;
-import uppaal.types.impl.TypesFactoryImpl;
-import uppaal.visuals.impl.VisualsFactoryImpl;
 
 public class Main {
 
@@ -66,7 +46,7 @@ public class Main {
 		}*/
 
 		// parse
-		new Main(testfileCora);
+		new Main(IPTV);
 		
 	}
 	public Main(File iptv) throws FileNotFoundException {
@@ -126,7 +106,7 @@ public class Main {
 		return listener.error ? null : program;
 	}
 	
-	protected static EFactory getFactory(EPackage pack) {
+	/*protected static EFactory getFactory(EPackage pack) {
 		//if (false || true) return null;
 		switch(pack.getNsURI()) {
 			case "http://www.muml.org/uppaal/1.0.0":
@@ -153,9 +133,9 @@ public class Main {
 		
 		System.out.println("Something went possibly wrong, could not create factory for NSUri: " + pack.getNsURI());
 		return null; 
-	}
+	}*/
 	
-	public static EObject loadResource(String filepath) throws IOException {
+	/*public static EObject loadResource(String filepath) throws IOException {
 		
 		// load
 		ResourceSet rs = new ResourceSetImpl();
@@ -206,7 +186,7 @@ public class Main {
 		System.out.println("Loaded model is not of type UPPAAL, cannot continue.");
 		System.exit(1);
 		return null; // required after an System.exit(int), because of compiler errors
-	}
+	}*/
 
 	public boolean saveResource(Trace trace, URI modelFile) {
 		try {

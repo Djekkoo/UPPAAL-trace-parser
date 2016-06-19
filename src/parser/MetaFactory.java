@@ -2,13 +2,10 @@ package parser;
 
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EDataType;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -31,7 +28,6 @@ import intermediateTrace.transitions.TransitionsPackage;
 import intermediateTrace.transitions.impl.TransitionsPackageImpl;
 import intermediateTrace.value.*;
 import intermediateTrace.value.impl.ValuePackageImpl;
-import uppaal.UppaalPackage;
 import intermediateTrace.clocks.AbstractClockBoundary;
 import intermediateTrace.clocks.ClocksFactory;
 import intermediateTrace.clocks.ClocksPackage;
@@ -39,9 +35,7 @@ import intermediateTrace.clocks.CombinedClockBoundary;
 import intermediateTrace.clocks.InverseClockBoundary;
 import intermediateTrace.clocks.SingleClockBoundary;
 import intermediateTrace.clocks.impl.ClocksPackageImpl;
-import intermediateTrace.impl.IntermediateTraceFactoryImpl;
 import intermediateTrace.impl.IntermediateTracePackageImpl;
-import intermediateTrace.impl.StateImpl;
 
 
 public class MetaFactory {
@@ -59,7 +53,7 @@ public class MetaFactory {
 		valuesFactory = (ValueFactory) ValuePackageImpl.eINSTANCE.getEFactoryInstance();
 	}
 	
-	public Trace createTrace(List<State> states, List<AbstractTransition> transitions) {
+	public Trace createTrace(List<State> states, List<AbstractTransition> transitions, List<TemplateInstance> templates) {
 		Trace res = this.factory.createTrace();
 
 		State[] stateArray = MetaFactory.fromListToArray(states);
@@ -79,6 +73,15 @@ public class MetaFactory {
 				transArray
 			);
 		res.eSet(sFeature.TRACE__TRANSITIONS, eListTrans);
+
+		TemplateInstance[] templArray = MetaFactory.fromListToArray(templates, new TemplateInstance[templates.size()]);
+		UnmodifiableEList<TemplateInstance> eListTempl = new EcoreEList.UnmodifiableEList<TemplateInstance>(
+				(InternalEObject) res, 
+				sFeature.TEMPLATE_INSTANCE, 
+				templArray.length, 
+				templArray
+			);
+		res.eSet(sFeature.TRACE__TEMPLATES, eListTempl);
 		
 		return res;
 	}
@@ -188,11 +191,12 @@ public class MetaFactory {
 		return res;
 	}
 
-	public Valuation createValuation(String name, Value value) {
+	public Valuation createValuation(String name, Value value, TemplateInstance tmpInstance) {
 		Valuation res = this.factory.createValuation();
 		res.setName(name);
 		res.setVariable(name); // reference
 		res.setValue(value);
+		res.setTemplate(tmpInstance);
 		return res;
 	}
 	
@@ -260,6 +264,34 @@ public class MetaFactory {
 		);
 		res.eSet(sFeature.Values.DATA_VARIABLE_DECLARATION_VALUATION__VALUATION, eList);
 		return res;
+	}
+
+	public void addValuationToStructValue(StructSpecificationValue val, Valuation subValuation) {
+		List<DataVariableDeclarationValuation> data = val.getValue();
+		DataVariableDeclarationValuation[] array = MetaFactory.fromListToArray(data, new DataVariableDeclarationValuation[data.size() + 1]);
+		Valuation[] items = new Valuation[1];
+		items[0] = subValuation;
+		array[array.length-1] = this.createDataVariableDeclarationValuation(subValuation.getName(), items);
+		UnmodifiableEList<DataVariableDeclarationValuation> eList = new EcoreEList.UnmodifiableEList<DataVariableDeclarationValuation>(
+				(InternalEObject) val, 
+				sFeature.Values.DATA_VARIABLE_DECLARATION_VALUATION, 
+				array.length, 
+				array
+		);
+		val.eSet(sFeature.Values.STRUCT_SPECIFICATION_VALUE__VALUE, eList);
+	}
+	
+	public void addItemToArrayValue(ArrayValue val, Value subValuation) {
+		
+		Value[] values = MetaFactory.fromListToArray(val.getValue(), new Value[val.getValue().size() + 1]);
+		values[values.length - 1] = subValuation;
+		UnmodifiableEList<Value> eList = new EcoreEList.UnmodifiableEList<Value>(
+				(InternalEObject) val, 
+				sFeature.Values.VALUE, 
+				values.length, 
+				values
+		);
+		val.eSet(sFeature.Values.ARRAY_VALUE__VALUE, eList);
 	}
 
 	public RangeSpecificationValue createRangeSpecificationValue(IntValue value) {
@@ -348,7 +380,7 @@ public class MetaFactory {
 	}
 	
 	protected static <T extends B, B> B[] fromListToArray(List<T> list, B[] array) {
-		if (list.size() != array.length) {
+		if (list.size() > array.length) {
 			System.out.println("Array and list lengths do not match, returning null in MetaFactory:fromListToArray(List, Array)");
 			return null;
 		}
@@ -371,6 +403,7 @@ public class MetaFactory {
 		public final static EStructuralFeature STATE			  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getState());
 		public final static EStructuralFeature TRACE__STATES	  = IntermediateTracePackageImpl.eINSTANCE.getTrace_States();
 		public final static EStructuralFeature TRACE__TRANSITIONS = IntermediateTracePackageImpl.eINSTANCE.getTrace_Transitions();
+		public static final EStructuralFeature TRACE__TEMPLATES   = IntermediateTracePackageImpl.eINSTANCE.getTrace_Templates();
 		public final static EStructuralFeature VALUATION		  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getValuation());
 		protected static EStructuralFeature getEStructuralFeature(EClass eClass) {
 			
@@ -408,4 +441,5 @@ public class MetaFactory {
 		}
 		
 	}
+
 }
