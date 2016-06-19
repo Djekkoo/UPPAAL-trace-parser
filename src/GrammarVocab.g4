@@ -27,6 +27,7 @@ DELAY: 'Delay:';
 
 MINUS: '-';
 PLUS: '+';
+MULT: '*';
 
 EQ: EQ_TOKEN EQ_TOKEN?;
 NE: '!=';
@@ -44,7 +45,7 @@ QM: '?';
 TIMEZERO: 't(0)';
 BOOL: 'true' | 'false';
 OBJECTREF: (TIMEZERO | VARREF (DOT OBJECTREF)*);
-VARREF: CHAR (CHAR| DIGIT)* (LSB DIGIT+ RSB)?;
+VARREF: CHAR (CHAR| DIGIT)* (LSB (DIGIT+|VARREF) RSB)?;
 REAL: NUM (DOT NUM)? ('e' (PLUS|MINUS) DIGIT DIGIT)?																																																																																																										;
 NUM: MINUS? DIGIT+;
 
@@ -54,3 +55,5 @@ BLOCKCOMMENT: '/*' .*? '*/' -> skip; // not officially UPPAAL, but useful for de
 
 CHAR: [A-Za-z_#];
 DIGIT: [0-9];
+
+DIVIDE: '/';

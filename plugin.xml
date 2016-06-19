@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated intermediateTrace -->
+      <package
+            uri="intermediateTrace"
+            class="intermediateTrace.IntermediateTracePackage"
+            genModel="intermediateTrace.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated intermediateTrace -->
+      <package
+            uri="myTrace.transitions"
+            class="intermediateTrace.transitions.TransitionsPackage"
+            genModel="intermediateTrace.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated intermediateTrace -->
+      <package
+            uri="myTrace.Clocks"
+            class="intermediateTrace.clocks.ClocksPackage"
+            genModel="intermediateTrace.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated intermediateTrace -->
+      <package
+            uri="myTrace.value"
+            class="intermediateTrace.value.ValuePackage"
+            genModel="intermediateTrace.genmodel"/>
+   </extension>
+
+</plugin>
