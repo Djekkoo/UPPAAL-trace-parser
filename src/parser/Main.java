@@ -50,7 +50,7 @@ public class Main {
 		}*/
 
 		// load resource
-		NTA uppaal = (NTA) Main.loadResource("/home/jacco/bachref/examples/small_AT/3.xml");//ADTool_IPTV/3_UPPAAL_MetaModel_instance.xml");
+		NTA uppaal = (NTA) Main.loadResource("/home/jacco/bachref/parser/example_uppaal.model");//ADTool_IPTV/3_UPPAAL_MetaModel_instance.xml");
 		
 		System.out.println("Loaded uppaal model succesfully");
 		
