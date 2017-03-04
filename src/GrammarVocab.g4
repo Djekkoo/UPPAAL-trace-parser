@@ -45,7 +45,7 @@ QM: '?';
 TIMEZERO: 't(0)';
 BOOL: 'true' | 'false';
 OBJECTREF: (TIMEZERO | VARREF (DOT OBJECTREF)*);
-VARREF: CHAR (CHAR| DIGIT)* (LSB (DIGIT+|VARREF) RSB)?;
+VARREF: CHAR (CHAR| DIGIT)* (LSB (DIGIT+|VARREF) RSB)*;
 REAL: NUM (DOT NUM)? ('e' (PLUS|MINUS) DIGIT DIGIT)?																																																																																																										;
 NUM: MINUS? DIGIT+;
 

@@ -13,49 +13,56 @@ import org.eclipse.emf.ecore.impl.EcoreFactoryImpl;
 import org.eclipse.emf.ecore.util.EcoreEList;
 import org.eclipse.emf.ecore.util.EcoreEList.UnmodifiableEList;
 
-import intermediateTrace.LocationInstance;
-import intermediateTrace.IntermediateTraceFactory;
-import intermediateTrace.IntermediateTracePackage;
-import intermediateTrace.State;
-import intermediateTrace.TemplateInstance;
-import intermediateTrace.Trace;
-import intermediateTrace.Valuation;
-import intermediateTrace.transitions.AbstractTransition;
-import intermediateTrace.transitions.DelayTransition;
-import intermediateTrace.transitions.EdgeTransition;
-import intermediateTrace.transitions.TransitionsFactory;
-import intermediateTrace.transitions.TransitionsPackage;
-import intermediateTrace.transitions.impl.TransitionsPackageImpl;
-import intermediateTrace.value.*;
-import intermediateTrace.value.impl.ValuePackageImpl;
-import intermediateTrace.clocks.AbstractClockBoundary;
-import intermediateTrace.clocks.ClocksFactory;
-import intermediateTrace.clocks.ClocksPackage;
-import intermediateTrace.clocks.CombinedClockBoundary;
-import intermediateTrace.clocks.InverseClockBoundary;
-import intermediateTrace.clocks.SingleClockBoundary;
-import intermediateTrace.clocks.impl.ClocksPackageImpl;
-import intermediateTrace.impl.IntermediateTracePackageImpl;
+import myTrace.transitions.AbstractTransition;
+import myTrace.transitions.DelayTransition;
+import myTrace.transitions.EdgeTransition;
+import myTrace.transitions.TransitionsFactory;
+import myTrace.transitions.TransitionsPackage;
+import myTrace.transitions.impl.TransitionsPackageImpl;
+import myTrace.value.*;
+import myTrace.value.impl.ValuePackageImpl;
+import uppaal.NTA;
+import uppaal.declarations.ClockVariableDeclaration;
+import uppaal.declarations.DataVariableDeclaration;
+import uppaal.declarations.Variable;
+import uppaal.templates.AbstractTemplate;
+import uppaal.templates.Edge;
+import uppaal.templates.Location;
+import uppaal.templates.RedefinedTemplate;
+import uppaal.templates.Template;
+import uppaal.templates.TemplatesPackage;
+import uppaal.templates.impl.TemplatesFactoryImpl;
+import myTrace.*;
+import myTrace.clocks.AbstractClockBoundary;
+import myTrace.clocks.ClocksFactory;
+import myTrace.clocks.ClocksPackage;
+import myTrace.clocks.CombinedClockBoundary;
+import myTrace.clocks.InverseClockBoundary;
+import myTrace.clocks.SingleClockBoundary;
+import myTrace.clocks.impl.ClocksPackageImpl;
+import myTrace.impl.MyTracePackageImpl;
 
 
 public class MetaFactory {
 
 	private TransitionsFactory transitionsFactory;
-	private IntermediateTraceFactory factory;
+	private MyTraceFactory factory;
 	private ClocksFactory clocksFactory;
 	private ValueFactory valuesFactory;
 
 
 	public MetaFactory() {
-		factory = (IntermediateTraceFactory) IntermediateTracePackageImpl.eINSTANCE.getEFactoryInstance();
+		factory = (MyTraceFactory) MyTracePackageImpl.eINSTANCE.getEFactoryInstance();
 		transitionsFactory = (TransitionsFactory) TransitionsPackageImpl.eINSTANCE.getEFactoryInstance();
 		clocksFactory = (ClocksFactory) ClocksPackageImpl.eINSTANCE.getEFactoryInstance();
 		valuesFactory = (ValueFactory) ValuePackageImpl.eINSTANCE.getEFactoryInstance();
 	}
 	
-	public Trace createTrace(List<State> states, List<AbstractTransition> transitions, List<TemplateInstance> templates) {
+	public Trace createTrace(List<State> states, List<AbstractTransition> transitions, List<TemplateInstance> templates, NTA nta) {
 		Trace res = this.factory.createTrace();
 
+		res.setNTA(nta);
+		
 		State[] stateArray = MetaFactory.fromListToArray(states);
 		UnmodifiableEList<State> eListStates = new EcoreEList.UnmodifiableEList<State>(
 				(InternalEObject) res, 
@@ -86,13 +93,14 @@ public class MetaFactory {
 		return res;
 	}
 	
-	public LocationInstance createLocationInstance(String location) {
+	protected LocationInstance createLocationInstance(Location location, TemplateInstance parent) {
 		LocationInstance res = factory.createLocationInstance();
 		res.setLocation(location);
+		res.setTemplate(parent);
 		return res;
 	}
 	
-	public TemplateInstance createNamedTemplateInstance(String template, String name) {
+	public TemplateInstance createNamedTemplateInstance(AbstractTemplate template, String name) {
 		TemplateInstance res = this.createTemplateInstance(template);
 		res.setName(name);
 		return res;
@@ -103,7 +111,7 @@ public class MetaFactory {
 	 * @param clock
 	 * @return
 	 */
-	public SingleClockBoundary createSingleClockBoundary(String clock) {
+	public SingleClockBoundary createSingleClockBoundary(ClockVariableDeclaration clock) {
 		SingleClockBoundary res = this.clocksFactory.createSingleClockBoundary();
 		res.setTarget(clock);
 		return res;
@@ -113,7 +121,7 @@ public class MetaFactory {
 	 * @param clock
 	 * @return
 	 */
-	public InverseClockBoundary createInverseClockBoundary(String clock) {
+	public InverseClockBoundary createInverseClockBoundary(ClockVariableDeclaration clock) {
 		InverseClockBoundary res = this.clocksFactory.createInverseClockBoundary();
 		res.setTarget(clock);
 		return res;
@@ -124,20 +132,20 @@ public class MetaFactory {
 	 * @param substrahend
 	 * @return
 	 */
-	public CombinedClockBoundary createCombinedClockBoundary(String minuend, String substrahend) {
+	public CombinedClockBoundary createCombinedClockBoundary(ClockVariableDeclaration minuend, ClockVariableDeclaration substrahend) {
 		CombinedClockBoundary res = this.clocksFactory.createCombinedClockBoundary();
 		res.setTarget(minuend);
 		res.setSubtrahend(substrahend);
 		return res;
 	}
 	
-	public TemplateInstance createdNamedTemplateIntance(String template, String name) {
+	public TemplateInstance createdNamedTemplateIntance(TemplateInstance template, String name) {
 		TemplateInstance res = this.factory.createTemplateInstance();
 		// copy locations into new EList
-		/*EList<LocationInstance> locations = template.getLocations();
+		EList<LocationInstance> locations = template.getLocations();
 		LocationInstance[] copyLocations = new LocationInstance[locations.size()];
 		for (int i = 0; i < locations.size(); i++) {
-			copyLocations[i] =  this.createLocationInstance(locations.get(i).getLocation());
+			copyLocations[i] =  this.createLocationInstance(locations.get(i).getLocation(), res);
 		}
 		UnmodifiableEList<LocationInstance> eList = new EcoreEList.UnmodifiableEList<LocationInstance>(
 				(InternalEObject) res, 
@@ -146,22 +154,22 @@ public class MetaFactory {
 				copyLocations
 			);
 		// set & return
-		res.eSet(sFeature.TEMPLATE_INSTANCE__LOCATIONS, eList);*/
-		res.setTemplate(template);
+		res.eSet(sFeature.TEMPLATE_INSTANCE__LOCATIONS, eList);
+		res.setTemplate(template.getTemplate());
 		res.setName(name);
 		return res;
 	}
 	
-	public TemplateInstance createTemplateInstance(String template) {
+	public TemplateInstance createTemplateInstance(AbstractTemplate template) {
 		// create templateInstance
-		/*Template locProvider = null;
+		Template locProvider = null;
 		// list of locations -> list of locationInstances
 		if (template instanceof Template) {
 			locProvider = (Template)template;
 		} else if(template instanceof RedefinedTemplate) {
 			AbstractTemplate temp = template;
 			while (temp instanceof RedefinedTemplate) {
-				((RedefinedTemplate) temp).getReferredTemplate();
+				temp = ((RedefinedTemplate) temp).getReferredTemplate();
 			}
 			if (false == (temp instanceof Template)) {
 				throw new RuntimeException("MetaFactory.java implementation is incomplete, please add handling of class " +temp.getClass());
@@ -170,31 +178,31 @@ public class MetaFactory {
 		} else {
 			throw new RuntimeException("MetaFactory.java implementation is incomplete, please add handling of class " +locProvider.getClass());
 		}
-		*/
+		
 		TemplateInstance res = factory.createTemplateInstance();
-		//EList<Location> locations = locProvider.getLocation();
-		//LocationInstance[] locationInstances = new LocationInstance[locations.size()];
-		//for (int i = 0; i < locations.size(); i++) {
-		//	locationInstances[i] = this.createLocationInstance(locations.get(i));
-		//}
+		EList<Location> locations = locProvider.getLocation();
+		LocationInstance[] locationInstances = new LocationInstance[locations.size()];
+		for (int i = 0; i < locations.size(); i++) {
+			locationInstances[i] = this.createLocationInstance(locations.get(i), res);
+		}
 		// create EList
-		//UnmodifiableEList<LocationInstance> eList = new EcoreEList.UnmodifiableEList<LocationInstance>(
-		//		(InternalEObject) res, 
-		//		sFeature.LOCATION_INSTANCE, 
-		//		locationInstances.length, 
-		//		locationInstances
-		//	);
+		UnmodifiableEList<LocationInstance> eList = new EcoreEList.UnmodifiableEList<LocationInstance>(
+				(InternalEObject) res, 
+				sFeature.LOCATION_INSTANCE, 
+				locationInstances.length, 
+				locationInstances
+			);
 		// add list to templateInstance
-		res.setTemplate(template);//res.setTemplate(locprovider)
-		//res.setName(template.getName());
-		//res.eSet(sFeature.TEMPLATE_INSTANCE__LOCATIONS, eList);
+		res.setTemplate(locProvider);
+		res.setName(template.getName());
+		res.eSet(sFeature.TEMPLATE_INSTANCE__LOCATIONS, eList);
 		return res;
 	}
 
-	public Valuation createValuation(String name, Value value, TemplateInstance tmpInstance) {
+	public Valuation createValuation(String name, Value value, TemplateInstance tmpInstance){//TODO: , Variable varRef) {
 		Valuation res = this.factory.createValuation();
 		res.setName(name);
-		res.setVariable(name); // reference
+		res.setVariable(null); // reference
 		res.setValue(value);
 		res.setTemplate(tmpInstance);
 		return res;
@@ -253,7 +261,7 @@ public class MetaFactory {
 		return res;
 	}
 	
-	public DataVariableDeclarationValuation createDataVariableDeclarationValuation(String dataVariableDeclaration, Valuation[] valuations) {
+	public DataVariableDeclarationValuation createDataVariableDeclarationValuation(DataVariableDeclaration dataVariableDeclaration, Valuation[] valuations) {
 		DataVariableDeclarationValuation res = this.valuesFactory.createDataVariableDeclarationValuation();
 		res.setDataVariableDeclaration(dataVariableDeclaration);
 		UnmodifiableEList<Valuation> eList = new EcoreEList.UnmodifiableEList<Valuation>(
@@ -271,7 +279,7 @@ public class MetaFactory {
 		DataVariableDeclarationValuation[] array = MetaFactory.fromListToArray(data, new DataVariableDeclarationValuation[data.size() + 1]);
 		Valuation[] items = new Valuation[1];
 		items[0] = subValuation;
-		array[array.length-1] = this.createDataVariableDeclarationValuation(subValuation.getName(), items);
+		array[array.length-1] = this.createDataVariableDeclarationValuation(null, items);//TODO: link datavariabledecleration!
 		UnmodifiableEList<DataVariableDeclarationValuation> eList = new EcoreEList.UnmodifiableEList<DataVariableDeclarationValuation>(
 				(InternalEObject) val, 
 				sFeature.Values.DATA_VARIABLE_DECLARATION_VALUATION, 
@@ -350,14 +358,14 @@ public class MetaFactory {
 		return res;
 	}
 	
-	public EdgeTransition createEdgeTransition(State source, State target, String[] edges) {
+	public EdgeTransition createEdgeTransition(State source, State target, Edge[] edges) {
 		EdgeTransition res = transitionsFactory.createEdgeTransition();
 		res.setSource(source);
 		res.setTarget(target);
 		// create list of 'uppaal' edges
-		UnmodifiableEList<String> eList = new EcoreEList.UnmodifiableEList<String>(
+		UnmodifiableEList<Edge> eList = new EcoreEList.UnmodifiableEList<Edge>(
 				(InternalEObject) res, 
-				EcoreFactoryImpl.eINSTANCE.eClass().getEStructuralFeature(EcorePackage.ESTRING), 
+				TemplatesFactoryImpl.eINSTANCE.eClass().getEStructuralFeature(TemplatesPackage.EDGE), 
 				edges.length, 
 				edges
 			);
@@ -374,8 +382,6 @@ public class MetaFactory {
 			return (T[]) new Object[0];
 		}
 		T[] res = (T[]) Array.newInstance(list.get(0).getClass(), list.size());
-		//for (int i = 0; i < list.size(); i++)
-		//	res[i] = list.get(i);
 		return fromListToArray(list, res);
 	}
 	
@@ -393,18 +399,19 @@ public class MetaFactory {
 	
 	/** Short-hand used to avoid unnecessary long statements in the parent class */
 	public static class sFeature {
-		public final static EStructuralFeature STATE__TEMPLATES = IntermediateTracePackageImpl.eINSTANCE.getState_Templates();
-		public final static EStructuralFeature STATE__LOCATIONS = IntermediateTracePackageImpl.eINSTANCE.getState_Locations();
-		public final static EStructuralFeature STATE__CLOCKS    = IntermediateTracePackageImpl.eINSTANCE.getState_Clocks();
-		public final static EStructuralFeature STATE__VALUATIONS = IntermediateTracePackageImpl.eINSTANCE.getState_Valuations();
-		public final static EStructuralFeature TEMPLATE_INSTANCE = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getTemplateInstance());
-		public final static EStructuralFeature TEMPLATE_INSTANCE__LOCATIONS = IntermediateTracePackageImpl.eINSTANCE.getTemplateInstance_Locations();//getEStructuralFeature(IntermediateTracePackageImpl.TEMPLATE_INSTANCE__LOCATIONS);
-		public final static EStructuralFeature LOCATION_INSTANCE = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getLocationInstance());
-		public final static EStructuralFeature STATE			  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getState());
-		public final static EStructuralFeature TRACE__STATES	  = IntermediateTracePackageImpl.eINSTANCE.getTrace_States();
-		public final static EStructuralFeature TRACE__TRANSITIONS = IntermediateTracePackageImpl.eINSTANCE.getTrace_Transitions();
-		public static final EStructuralFeature TRACE__TEMPLATES   = IntermediateTracePackageImpl.eINSTANCE.getTrace_Templates();
-		public final static EStructuralFeature VALUATION		  = getEStructuralFeature(IntermediateTracePackage.eINSTANCE.getValuation());
+		public final static EStructuralFeature STATE__TEMPLATES = MyTracePackageImpl.eINSTANCE.getState_Templates();
+		public final static EStructuralFeature STATE__LOCATIONS = MyTracePackageImpl.eINSTANCE.getState_Locations();
+		public final static EStructuralFeature STATE__CLOCKS    = MyTracePackageImpl.eINSTANCE.getState_Clocks();
+		public final static EStructuralFeature STATE__VALUATIONS = MyTracePackageImpl.eINSTANCE.getState_Valuations();
+		public final static EStructuralFeature TEMPLATE_INSTANCE = getEStructuralFeature(MyTracePackageImpl.eINSTANCE.getTemplateInstance());
+		public final static EStructuralFeature TEMPLATE_INSTANCE__LOCATIONS = MyTracePackageImpl.eINSTANCE.getTemplateInstance_Locations();//getEStructuralFeature(MyTracePackageImpl.TEMPLATE_INSTANCE__LOCATIONS);
+		public final static EStructuralFeature LOCATION_INSTANCE = getEStructuralFeature(MyTracePackageImpl.eINSTANCE.getLocationInstance());
+		public final static EStructuralFeature STATE			  = getEStructuralFeature(MyTracePackageImpl.eINSTANCE.getState());
+		public final static EStructuralFeature TRACE__STATES	  = MyTracePackageImpl.eINSTANCE.getTrace_States();
+		public final static EStructuralFeature TRACE__TRANSITIONS = MyTracePackageImpl.eINSTANCE.getTrace_Transitions();
+		public static final EStructuralFeature TRACE__TEMPLATES   = MyTracePackageImpl.eINSTANCE.getTrace_Templates();
+		public final static EStructuralFeature VALUATION		  = getEStructuralFeature(MyTracePackageImpl.eINSTANCE.getValuation());
+		
 		protected static EStructuralFeature getEStructuralFeature(EClass eClass) {
 			
 			EList<EStructuralFeature> tmp = eClass.eClass().getEAllStructuralFeatures();
@@ -421,7 +428,7 @@ public class MetaFactory {
 		
 		public static class Transitions {
 			
-			public static final EStructuralFeature ABSTRACT_TRANSITION = getEStructuralFeature(TransitionsPackage.eINSTANCE.getAbstractTransition());
+			public final static EStructuralFeature ABSTRACT_TRANSITION = getEStructuralFeature(TransitionsPackage.eINSTANCE.getAbstractTransition());
 			public final static EStructuralFeature EDGE_TRANSITION__EDGES = TransitionsPackageImpl.eINSTANCE.getEdgeTransition_Edges();
 
 		}
@@ -441,5 +448,6 @@ public class MetaFactory {
 		}
 		
 	}
-
+	// string class selector:
+	// EcoreFactoryImpl.eINSTANCE.eClass().getEStructuralFeature(EcorePackage.ESTRING)
 }

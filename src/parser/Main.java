@@ -6,19 +6,24 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.List;
 
 import org.antlr.v4.runtime.*;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EFactory;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
-import intermediateTrace.Trace;
+import myTrace.Trace;
 import parser.antlr4.UPPAALTraceLexer;
 import parser.antlr4.UPPAALTraceParser;
 import parser.antlr4.UPPAALTraceParser.TraceContext;
+import uppaal.NTA;
+import uppaal.UppaalPackage;
 
 public class Main {
 
@@ -30,28 +35,33 @@ public class Main {
 	protected static final File testfileCora = new File("./testfiles/human_traces/EnterRoom-gui-generated-some.human"); // cora with libutap 0.91
 	protected static final File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
 	protected static final File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
-	protected static final File testLargeECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_small.xtr_human"); // large
+	protected static final File testSmallECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_small.xtr_human"); // large
 	protected static final File IPTV = new File("/home/jacco/bachref/examples/ADTool_IPTV/6_UPPAAL_result_trace_small.txt");
 	
 	// please provide manual 
 	public static final URI UPPAAL_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/uppaal.ecore");
-	public static final URI INTERMEDIATE_TRACE_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/intermediateTrace.ecore");;
-
+	public static final URI MY_TRACE_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/myTrace.ecore");;
+	
 
 	public static void main(String[] args) throws URISyntaxException, FileNotFoundException, IOException {
 		
 		/*if (args.length < 3) {
-			System.out.format("Please use as java -jar %s <model.if> <trace.xtr>%n", new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getName());
+			System.out.format("Please use as java -jar %s <model.xml> <trace.xtr>%n", new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getName());
 			return;
 		}*/
+		String model = "/home/jacco/bachref/examples/AttackTrees/UPPAAL/EnterRoom.xml";
+		File trace = new File("/home/jacco/bachref/examples/exampleSDF_UPPAAL_Trace.txt");//AttackTrees/UPPAAL/EnterRoom-cora-default-old.human");
 
 		// parse
-		new Main(IPTV);
+		new Main(trace, model);
 		
 	}
-	public Main(File iptv) throws FileNotFoundException {
+	public Main(File iptv, String model) throws IOException {
 		TraceContext ctx = this.getTraceContext(iptv);
-		Trace trace = this.parseTraceContext(ctx);
+		
+		NTA uppaal = (NTA) Main.loadResource(model);
+		
+		Trace trace = this.parseTraceContext(ctx, uppaal);
 		System.out.println("Found " + trace.getStates().size() + " states");
 
 		URI file = URI.createFileURI("/home/jacco/bachref/parser/intermediate.model");
@@ -62,7 +72,7 @@ public class Main {
 			System.out.println("Saved resource as: " + file.path());
 	}
 	
-	public Trace parseTraceContext(TraceContext ctx) {
+	public Trace parseTraceContext(TraceContext ctx, NTA uppaal) {
 		if (ctx == null) {
 			System.out.println("Could not parse trace, TraceContext is null");
 			return null;
@@ -71,7 +81,7 @@ public class Main {
 		long startTime = System.currentTimeMillis();
 		
 		// parse
-		GenericParser parser = new GenericParser();
+		GenericParser parser = new GenericParser(uppaal);
 		ctx.accept(parser);
 		Trace res = parser.buildTrace();
 		System.out.println("Parsed in " + String.valueOf(((float)(System.currentTimeMillis() - startTime))/1000) + " seconds");
@@ -106,45 +116,20 @@ public class Main {
 		return listener.error ? null : program;
 	}
 	
-	/*protected static EFactory getFactory(EPackage pack) {
-		//if (false || true) return null;
-		switch(pack.getNsURI()) {
-			case "http://www.muml.org/uppaal/1.0.0":
-				return new UppaalFactoryImpl();
-			case "http://www.muml.org/uppaal/types/1.0.0":
-				return new TypesFactoryImpl();
-			case "http://www.muml.org/uppaal/core/1.0.0":
-				return new CoreFactoryImpl();
-			case "http://www.muml.org/uppaal/declarations/1.0.0":
-				return new DeclarationsFactoryImpl();
-			case "http://www.muml.org/uppaal/declarations/global/1.0.0":
-				return new GlobalFactoryImpl();
-			case "http://www.muml.org/uppaal/declarations/system/1.0.0":
-				return new SystemFactoryImpl();
-			case "http://www.muml.org/uppaal/templates/1.0.0":
-				return new TemplatesFactoryImpl();
-			case "http://www.muml.org/uppaal/statements/1.0.0":
-				return new StatementsFactoryImpl();
-			case "http://www.muml.org/uppaal/expressions/1.0.0":
-				return new ExpressionsFactoryImpl();
-			case "http://www.muml.org/uppaal/visuals/1.0.0":
-				return new VisualsFactoryImpl();
-		}
-		
-		System.out.println("Something went possibly wrong, could not create factory for NSUri: " + pack.getNsURI());
-		return null; 
-	}*/
+	protected static EFactory getFactory(EPackage pack) {
+		return pack.getEFactoryInstance();
+	}
 	
-	/*public static EObject loadResource(String filepath) throws IOException {
+	public static EObject loadResource(String filepath) throws IOException {
 		
 		// load
 		ResourceSet rs = new ResourceSetImpl();
 		
 		// set ECORE
 		rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
-		Resource resEcore = rs.createResource(UPPAAL_ECORE);
-		resEcore.load(null);
-		EPackage pack = (EPackage) resEcore.getContents().get(0);
+//		Resource resEcore = rs.createResource(UPPAAL_ECORE);
+//		resEcore.load(null);
+		EPackage pack = uppaal.UppaalPackage.eINSTANCE;//resEcore.getContents().get(0);
 		EFactory fact = getFactory(pack);
 		if (fact != null) pack.setEFactoryInstance(fact);
 		rs.getPackageRegistry().put(pack.getNsURI(), pack);
@@ -186,7 +171,7 @@ public class Main {
 		System.out.println("Loaded model is not of type UPPAAL, cannot continue.");
 		System.exit(1);
 		return null; // required after an System.exit(int), because of compiler errors
-	}*/
+	}
 
 	public boolean saveResource(Trace trace, URI modelFile) {
 		try {
@@ -194,7 +179,7 @@ public class Main {
 			// I just don't want to risk removing it. 
 			ResourceSet rs = new ResourceSetImpl(); 
 			rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
-			Resource res = rs.createResource(Main.INTERMEDIATE_TRACE_ECORE);
+			Resource res = rs.createResource(Main.MY_TRACE_ECORE);
 			res.load(null);
 			EPackage metapackage = (EPackage)res.getContents().get(0);
 			

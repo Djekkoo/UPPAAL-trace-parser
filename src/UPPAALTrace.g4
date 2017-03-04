@@ -126,7 +126,7 @@ assignment
 
 funcAssignment
 :
-	OBJECTREF LB value? RB
+	OBJECTREF LB ( (value|OBJECTREF) ( COMMA (value|OBJECTREF) )* )? RB
 ; //verifyta
 
 clock

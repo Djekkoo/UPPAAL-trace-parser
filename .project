@@ -3,6 +3,7 @@
 	<name>UPPAAL-trace-parser</name>
 	<comment></comment>
 	<projects>
+		<project>test-EMF</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
