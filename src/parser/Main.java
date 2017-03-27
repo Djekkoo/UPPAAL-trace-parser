@@ -36,7 +36,7 @@ public class Main {
 	protected static final File testfileNoCora = new File("./testfiles/human_traces/EnterRoom-Geen-Cora_trace_fastest.human"); // nocora with libutap 0.93
 	protected static final File testfileVerifyta = new File("./testfiles/human_traces/EnterRoom-nocora_new_shortest.human");   // CORA verifyta output
 	protected static final File testSmallECHO = new File("/home/jacco/bachref/examples/ECHO/ECHO_small.xtr_human"); // large
-	protected static final File IPTV = new File("/home/jacco/bachref/examples/ADTool_IPTV/6_UPPAAL_result_trace_small.txt");
+	protected static final File IPTV = new File("/home/jacco/bachref/examples/ADTool_IPTV/6_UPPAAL_result_trace.txt");
 	
 	// please provide manual 
 	public static final URI UPPAAL_ECORE = URI.createFileURI("/home/jacco/workspace/test-EMF/uppaal.ecore");
@@ -49,9 +49,11 @@ public class Main {
 			System.out.format("Please use as java -jar %s <model.xml> <trace.xtr>%n", new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getName());
 			return;
 		}*/
-		String model = "/home/jacco/bachref/examples/AttackTrees/UPPAAL/EnterRoom.xml";
-		File trace = new File("/home/jacco/bachref/examples/exampleSDF_UPPAAL_Trace.txt");//AttackTrees/UPPAAL/EnterRoom-cora-default-old.human");
-
+		String model = "/home/jacco/bachref/parser/3_UPPAAL_MetaModel_instance.uppaal";
+//		String model = "/home/jacco/bachref/examples/AttackTrees/UPPAAL/EnterRoom.xml";
+//		File trace = new File("/home/jacco/bachref/examples/exampleSDF_UPPAAL_Trace.txt");//AttackTrees/UPPAAL/EnterRoom-cora-default-old.human");
+		File trace = new File("/home/jacco/bachref/examples/ADTool_IPTV/6_UPPAAL_result_trace.txt");//AttackTrees/UPPAAL/EnterRoom-cora-default-old.human");
+		
 		// parse
 		new Main(trace, model);
 		
@@ -64,7 +66,7 @@ public class Main {
 		Trace trace = this.parseTraceContext(ctx, uppaal);
 		System.out.println("Found " + trace.getStates().size() + " states");
 
-		URI file = URI.createFileURI("/home/jacco/bachref/parser/intermediate.model");
+		URI file = URI.createFileURI("/home/jacco/bachref/parser/result.myTrace");
 		boolean success = this.saveResource(trace, file);
 		if (!success)
 			System.out.println("Could not save resource!");

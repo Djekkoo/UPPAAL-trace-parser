@@ -7,18 +7,6 @@ Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: intermediateTrace,
- intermediateTrace.clocks,
- intermediateTrace.clocks.impl,
- intermediateTrace.clocks.util,
- intermediateTrace.impl,
- intermediateTrace.transitions,
- intermediateTrace.transitions.impl,
- intermediateTrace.transitions.util,
- intermediateTrace.util,
- intermediateTrace.value,
- intermediateTrace.value.impl,
- intermediateTrace.value.util
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  test-EMF

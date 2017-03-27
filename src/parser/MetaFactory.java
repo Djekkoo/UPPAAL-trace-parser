@@ -111,7 +111,7 @@ public class MetaFactory {
 	 * @param clock
 	 * @return
 	 */
-	public SingleClockBoundary createSingleClockBoundary(ClockVariableDeclaration clock) {
+	public SingleClockBoundary createSingleClockBoundary(String clock) {
 		SingleClockBoundary res = this.clocksFactory.createSingleClockBoundary();
 		res.setTarget(clock);
 		return res;
@@ -121,7 +121,7 @@ public class MetaFactory {
 	 * @param clock
 	 * @return
 	 */
-	public InverseClockBoundary createInverseClockBoundary(ClockVariableDeclaration clock) {
+	public InverseClockBoundary createInverseClockBoundary(String clock) {
 		InverseClockBoundary res = this.clocksFactory.createInverseClockBoundary();
 		res.setTarget(clock);
 		return res;
@@ -132,7 +132,7 @@ public class MetaFactory {
 	 * @param substrahend
 	 * @return
 	 */
-	public CombinedClockBoundary createCombinedClockBoundary(ClockVariableDeclaration minuend, ClockVariableDeclaration substrahend) {
+	public CombinedClockBoundary createCombinedClockBoundary(String minuend, String substrahend) {
 		CombinedClockBoundary res = this.clocksFactory.createCombinedClockBoundary();
 		res.setTarget(minuend);
 		res.setSubtrahend(substrahend);
@@ -156,7 +156,8 @@ public class MetaFactory {
 		// set & return
 		res.eSet(sFeature.TEMPLATE_INSTANCE__LOCATIONS, eList);
 		res.setTemplate(template.getTemplate());
-		res.setName(name);
+		String[] nameParts = name.split("\\.", 2);
+		res.setName(nameParts[0]);
 		return res;
 	}
 	

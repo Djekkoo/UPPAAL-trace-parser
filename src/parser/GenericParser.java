@@ -155,6 +155,7 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 			// Find Edge and add to 'edgeList'
 			thisIsBadPractice:/* Sorry, i wish we had depth-based breaks. :( */ for (j = 0; j < this.usedTemplates.size(); j++) {
 				if (this.usedTemplates.get(j).getName().equals(templateName)) {
+					List<ArrayList<Edge>> stepEdges = new ArrayList<ArrayList<Edge>>();
 					List<Edge> possibleEdges = this.usedTemplates.get(j).getTemplate().getEdge();
 					for (int edgeIterator = 0; edgeIterator < possibleEdges.size(); edgeIterator++) {
 						// target/destination name matching?
@@ -167,6 +168,30 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 							// TODO: verify answer checking other parameters
 							edgeList.add(possibleEdges.get(edgeIterator));
 							break thisIsBadPractice;
+						}
+						// multiple edges in single transition
+						else if (possibleEdges.get(edgeIterator).getSource().getName().equals(locationFrom)) {
+							ArrayList<Edge> l = new ArrayList<Edge>();
+							l.add(possibleEdges.get(edgeIterator));
+							stepEdges.add(l);
+						}
+						else {
+							List<ArrayList<Edge>> addToStepEdges = new ArrayList<ArrayList<Edge>>();
+							for (int stepEdgesIterator = 0; stepEdgesIterator < stepEdges.size(); stepEdgesIterator++) {
+								ArrayList<Edge> tList = (ArrayList<Edge>) stepEdges.get(stepEdgesIterator);
+								if (tList.get(tList.size()-1).getTarget().getName().equals(possibleEdges.get(edgeIterator).getSource().getName())) {
+									ArrayList<Edge> copy = new ArrayList<Edge>(tList);
+									copy.add(possibleEdges.get(edgeIterator));
+									addToStepEdges.add(copy);
+									if (copy.get(copy.size()-1).getTarget().getName().equals(locationTo)) {
+										edgeList.addAll(copy);
+										break thisIsBadPractice;
+									}
+								}
+							}
+							for (int addI = 0; addI < addToStepEdges.size(); addI++) {
+								stepEdges.add(addToStepEdges.get(addI));
+							}
 						}
 					}
 				}
@@ -478,24 +503,29 @@ public class GenericParser extends UPPAALTraceBaseVisitor<Object> {
 	// visitClockLHS(ClockLHSContext ctx) is implemented through the following 4 methods
 	// ClockLHS => T(0) - OBJECTREF
 	public InverseClockBoundary visitClockLHSZeroMinusObject(ClockLHSZeroMinusObjectContext ctx) {
-		ClockVariableDeclaration clock = null; //TODO: Find me ctx.OBJECTREF().getText(); 
+		String clock = ctx.OBJECTREF().getText(); 
+		//TODO: Find me ctx.OBJECTREF().getText();, and change String reference to Uppaal model reference 
 		return this.metaFactory.createInverseClockBoundary(clock);
 	}
 	// ClockLHS => OBJECTREF - T(0)
 	public SingleClockBoundary visitClockLHSObjectMinusZero(ClockLHSObjectMinusZeroContext ctx) {
-		ClockVariableDeclaration clock = null; //TODO: Find me ctx.OBJECTREF().getText(); 
+		String clock = ctx.OBJECTREF().getText(); 
+		//TODO: Find me ctx.OBJECTREF().getText(); as definition, and change String reference to Uppaal model reference 
 		return this.metaFactory.createSingleClockBoundary(clock);
 	}
 	// ClockLHS => OBJECTREF
 	public SingleClockBoundary visitClockLHSObject(ClockLHSObjectContext ctx) {
-		ClockVariableDeclaration clock = null; //TODO: Find me ctx.OBJECTREF().getText(); 
+		String clock = ctx.OBJECTREF().getText(); 
+		//TODO: Find me ctx.OBJECTREF().getText();, and change String reference to Uppaal model reference 
 		return this.metaFactory.createSingleClockBoundary(clock);
 	}
 	 
 	// ClockLHS => OBJECTREF - OBJECTREF
 	public CombinedClockBoundary visitClockLHSObjectMinusObject(ClockLHSObjectMinusObjectContext ctx) {
-		ClockVariableDeclaration minuend = null; //TODO: Find me  ctx.OBJECTREF(0).getText(); 
-		ClockVariableDeclaration substrahend = null; //TODO: Find me  ctx.OBJECTREF(1).getText(); 
+		String minuend = ctx.OBJECTREF(0).getText(); 
+		//TODO: Find me  ctx.OBJECTREF(0).getText();, and change String reference to Uppaal model reference 
+		String substrahend = ctx.OBJECTREF(1).getText(); 
+		//TODO: Find me  ctx.OBJECTREF(1).getText();, and change String reference to Uppaal model reference 
 		return this.metaFactory.createCombinedClockBoundary(minuend, substrahend);
 	}
 	/**----------------------------------RULES TO STRINGS------------------------------**/
